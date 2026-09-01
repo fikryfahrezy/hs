@@ -8,3 +8,5 @@
 4. [Styling conventions](./04-styling-conventions.md)
 5. [Continuous integration](./05-continuous-integration.md)
 6. [Testing strategy](./06-testing-strategy.md)
+7. [Product implementation plan](./07-implementation-plan.md)
+8. [Technical specification](./08-technical-specification.md)
