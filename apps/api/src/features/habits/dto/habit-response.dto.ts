@@ -6,7 +6,7 @@ import {
 export class BuildHabitResponseDto implements BuildHabitResponse {
   public readonly id: string;
   public readonly name: string;
-  public readonly type: "build";
+  public readonly type: BuildHabitResponse["type"];
   public readonly start_date: string;
   public readonly created_at: string;
   public readonly updated_at: string;
@@ -26,7 +26,7 @@ export class BuildHabitResponseDto implements BuildHabitResponse {
 export class BreakHabitResponseDto implements BreakHabitResponse {
   public readonly id: string;
   public readonly name: string;
-  public readonly type: "break";
+  public readonly type: BreakHabitResponse["type"];
   public readonly start_date: string;
   public readonly created_at: string;
   public readonly updated_at: string;

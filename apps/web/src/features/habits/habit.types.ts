@@ -1,16 +1,15 @@
 import {
+  HABIT_DAY_STATE,
+  HABIT_TYPE,
+  type HabitDayState,
+} from "@habit-shaper/contracts";
+
+import {
   responseBoolean,
   responseNumber,
   responseRecord,
   responseString,
 } from "../../lib/response-value";
-
-export type HabitDayState =
-  | "ineligible"
-  | "future"
-  | "completed"
-  | "pending"
-  | "missed";
 
 export class HabitDay {
   public readonly date: string;
@@ -19,16 +18,29 @@ export class HabitDay {
 
   public constructor(response: unknown) {
     const day = responseRecord(response);
-    const state = responseString(day.state, "ineligible");
+    const responseState = responseString(day.state, "");
+    let state: HabitDayState = HABIT_DAY_STATE.INELIGIBLE;
+    if (
+      responseState === HABIT_DAY_STATE.FUTURE ||
+      responseState === HABIT_DAY_STATE.COMPLETED ||
+      responseState === HABIT_DAY_STATE.PENDING ||
+      responseState === HABIT_DAY_STATE.MISSED
+    ) {
+      state = responseState;
+    }
     this.date = responseString(day.date, "");
-    this.state =
-      state === "future" ||
-      state === "completed" ||
-      state === "pending" ||
-      state === "missed"
-        ? state
-        : "ineligible";
+    this.state = state;
     this.mutable = responseBoolean(day.mutable);
+  }
+
+  public get weekdayLabel(): string {
+    const date = new Date(`${this.date}T00:00:00Z`);
+    return Number.isNaN(date.getTime())
+      ? "?"
+      : date.toLocaleDateString("en", {
+          weekday: "narrow",
+          timeZone: "UTC",
+        });
   }
 }
 
@@ -49,7 +61,7 @@ abstract class HabitModel {
 }
 
 export class BuildHabit extends HabitModel {
-  public readonly type = "build" as const;
+  public readonly type = HABIT_TYPE.BUILD;
   public readonly tracking: {
     currentStreak: number;
     week: {
@@ -85,7 +97,7 @@ export class BuildHabit extends HabitModel {
 }
 
 export class BreakHabit extends HabitModel {
-  public readonly type = "break" as const;
+  public readonly type = HABIT_TYPE.BREAK;
   public readonly tracking: {
     currentCleanStreak: number;
     lastRelapseDate: string | null;
@@ -108,7 +120,7 @@ export type Habit = BuildHabit | BreakHabit;
 
 export function habitFromApi(response: unknown, index = 0): Habit {
   const habit = responseRecord(response);
-  return habit.type === "break"
+  return habit.type === HABIT_TYPE.BREAK
     ? new BreakHabit(habit, index)
     : new BuildHabit(habit, index);
 }

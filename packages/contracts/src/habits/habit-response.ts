@@ -2,6 +2,17 @@ import { z } from "zod";
 
 import { CalendarDateSchema } from "../common/calendar-date";
 import { IdentifierSchema } from "../common/identifiers";
+import { HABIT_TYPE } from "./create-habit";
+
+export const HABIT_DAY_STATE = {
+  INELIGIBLE: "ineligible",
+  FUTURE: "future",
+  COMPLETED: "completed",
+  PENDING: "pending",
+  MISSED: "missed",
+} as const;
+
+const HabitDayStateSchema = z.enum(HABIT_DAY_STATE);
 
 const HabitCommonSchema = z.object({
   id: IdentifierSchema,
@@ -13,12 +24,12 @@ const HabitCommonSchema = z.object({
 
 export const BuildDayStateSchema = z.object({
   date: CalendarDateSchema,
-  state: z.enum(["ineligible", "future", "completed", "pending", "missed"]),
+  state: HabitDayStateSchema,
   mutable: z.boolean(),
 });
 
 export const BuildHabitResponseSchema = HabitCommonSchema.extend({
-  type: z.literal("build"),
+  type: z.literal(HABIT_TYPE.BUILD),
   tracking: z.object({
     current_streak: z.number().int().nonnegative(),
     week: z.object({
@@ -34,7 +45,7 @@ export const BuildHabitResponseSchema = HabitCommonSchema.extend({
 });
 
 export const BreakHabitResponseSchema = HabitCommonSchema.extend({
-  type: z.literal("break"),
+  type: z.literal(HABIT_TYPE.BREAK),
   tracking: z.object({
     current_clean_streak: z.number().int().nonnegative(),
     last_relapse_date: CalendarDateSchema.nullable(),
@@ -52,6 +63,7 @@ export const ListHabitsQuerySchema = z
   .strict();
 
 export type BuildDayState = z.infer<typeof BuildDayStateSchema>;
+export type HabitDayState = z.infer<typeof HabitDayStateSchema>;
 export type BuildHabitResponse = z.infer<typeof BuildHabitResponseSchema>;
 export type BreakHabitResponse = z.infer<typeof BreakHabitResponseSchema>;
 export type HabitResponse = z.infer<typeof HabitResponseSchema>;

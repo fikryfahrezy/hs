@@ -42,11 +42,11 @@ remain the detailed engineering reference.
 
 ## 4. Build-habit tracking
 
-- [ ] Add the habit-completions migration.
-- [ ] Implement current-week completion and correction operations.
-- [ ] Implement current streak and weekly progress calculations.
-- [ ] Add the seven-day progress interface and daily completion actions.
-- [ ] Test date eligibility, idempotency, ownership, boundaries, and UI states.
+- [x] Add the habit-completions migration.
+- [x] Implement current-week completion and correction operations.
+- [x] Implement current streak and weekly progress calculations.
+- [x] Add the seven-day progress interface and daily completion actions.
+- [x] Test date eligibility, idempotency, ownership, boundaries, and UI states.
 
 ## 5. Break-habit tracking
 

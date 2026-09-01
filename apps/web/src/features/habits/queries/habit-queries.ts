@@ -1,6 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { type CreateHabitRequest } from "@habit-shaper/contracts";
-import { createHabit, deleteHabit, listHabits } from "../api/habits-api";
+import {
+  createHabit,
+  deleteHabit,
+  listHabits,
+  setCompletion,
+} from "../api/habits-api";
 
 export const habitQueryKeys = { all: ["habits"] as const };
 
@@ -20,6 +25,15 @@ export function useDeleteHabitMutation() {
   const client = useQueryClient();
   return useMutation({
     mutationFn: deleteHabit,
+    onSuccess: () => client.invalidateQueries({ queryKey: habitQueryKeys.all }),
+  });
+}
+
+export function useCompletionMutation() {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: (input: { habitId: string; date: string; present: boolean }) =>
+      setCompletion(input.habitId, input.date, input.present),
     onSuccess: () => client.invalidateQueries({ queryKey: habitQueryKeys.all }),
   });
 }

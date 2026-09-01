@@ -1,6 +1,11 @@
 import { z } from "zod";
 
-export const HabitTypeSchema = z.enum(["build", "break"]);
+export const HABIT_TYPE = {
+  BUILD: "build",
+  BREAK: "break",
+} as const;
+
+export const HabitTypeSchema = z.enum(HABIT_TYPE);
 
 export const CreateHabitRequestSchema = z
   .object({

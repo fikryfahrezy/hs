@@ -21,3 +21,18 @@ export async function deleteHabit(id: string): Promise<void> {
     method: "DELETE",
   });
 }
+
+export async function setCompletion(
+  habitId: string,
+  date: string,
+  present: boolean,
+): Promise<Habit> {
+  return habitFromApi(
+    await requestJson(
+      `${HABITS_ENDPOINT}/${encodeURIComponent(habitId)}/completions/${encodeURIComponent(date)}`,
+      {
+        method: present ? "PUT" : "DELETE",
+      },
+    ),
+  );
+}

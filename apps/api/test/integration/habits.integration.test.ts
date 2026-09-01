@@ -61,4 +61,32 @@ describe("habit endpoints", () => {
 
     expect((await owner.get("/api/habits").expect(200)).body).toHaveLength(1);
   });
+
+  it("records and corrects an owned current-week completion idempotently", async () => {
+    const owner = await register(app, "tracking-owner");
+    const stranger = await register(app, "tracking-stranger");
+    const created = await owner
+      .post("/api/habits")
+      .send({ name: "Read", type: "build" })
+      .expect(201);
+    const today = created.body.tracking.week.days.find(
+      (day: { state: string }) => day.state === "pending",
+    ).date;
+    const endpoint = `/api/habits/${created.body.id}/completions/${today}`;
+
+    await stranger.put(endpoint).expect(404);
+    const completed = await owner.put(endpoint).expect(200);
+    expect(completed.body.tracking.week.completed_day_count).toBe(1);
+    expect(
+      completed.body.tracking.week.days.find(
+        (day: { date: string }) => day.date === today,
+      ).state,
+    ).toBe("completed");
+
+    const repeated = await owner.put(endpoint).expect(200);
+    expect(repeated.body.tracking.week.completed_day_count).toBe(1);
+
+    const corrected = await owner.delete(endpoint).expect(200);
+    expect(corrected.body.tracking.week.completed_day_count).toBe(0);
+  });
 });

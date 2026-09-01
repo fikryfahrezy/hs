@@ -7,10 +7,12 @@ import {
   HttpStatus,
   Param,
   Post,
+  Put,
   Query,
   UseGuards,
 } from "@nestjs/common";
 import {
+  CalendarDateSchema,
   CreateHabitRequestSchema,
   IdentifierSchema,
   ListHabitsQuerySchema,
@@ -54,5 +56,33 @@ export class HabitsController {
     @Param("habit_id") id: string,
   ): Promise<void> {
     await this.habits.delete(userId, parseSchema(IdentifierSchema, id));
+  }
+
+  @Put(":habit_id/completions/:date")
+  public completion(
+    @CurrentUserId() userId: string,
+    @Param("habit_id") id: string,
+    @Param("date") date: string,
+  ): Promise<HabitResponseDto> {
+    return this.habits.setCompletion(
+      userId,
+      parseSchema(IdentifierSchema, id),
+      parseSchema(CalendarDateSchema, date),
+      true,
+    );
+  }
+
+  @Delete(":habit_id/completions/:date")
+  public correction(
+    @CurrentUserId() userId: string,
+    @Param("habit_id") id: string,
+    @Param("date") date: string,
+  ): Promise<HabitResponseDto> {
+    return this.habits.setCompletion(
+      userId,
+      parseSchema(IdentifierSchema, id),
+      parseSchema(CalendarDateSchema, date),
+      false,
+    );
   }
 }

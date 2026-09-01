@@ -1,17 +1,21 @@
 import { randomUUID } from "node:crypto";
 
 import { Injectable } from "@nestjs/common";
-import { ERROR_CODE, type HabitType } from "@habit-shaper/contracts";
+import {
+  ERROR_CODE,
+  HABIT_TYPE,
+  type HabitType,
+} from "@habit-shaper/contracts";
 
 import { AppError } from "../../../common/errors/app-error";
 import {
-  addDays,
   dateInTimeZone,
   startOfWeek,
   toEpochDay,
 } from "../../../common/time/calendar";
 import { AuthService } from "../../auth/application/auth.service";
 import { HabitsRepository } from "../data/habits.repository";
+import { buildTracking, isCompletionEligible } from "../domain/build-tracking";
 import {
   BreakHabitResponseDto,
   BuildHabitResponseDto,
@@ -45,8 +49,13 @@ export class HabitsService {
         },
       );
     }
-    return (await this.repository.list(userId)).map((habit) =>
-      this.present(habit, today, weekStart),
+
+    const [habits, completions] = await Promise.all([
+      this.repository.list(userId),
+      this.repository.completionDates(userId),
+    ]);
+    return habits.map((habit) =>
+      this.present(habit, today, weekStart, completions.get(habit.id) ?? []),
     );
   }
 
@@ -62,7 +71,7 @@ export class HabitsService {
       type: input.type,
       start_date: today,
     });
-    return this.present(habit, today, startOfWeek(today));
+    return this.present(habit, today, startOfWeek(today), []);
   }
 
   public async delete(userId: string, habitId: string): Promise<void> {
@@ -75,66 +84,104 @@ export class HabitsService {
     }
   }
 
+  public async setCompletion(
+    userId: string,
+    habitId: string,
+    date: string,
+    present: boolean,
+  ): Promise<HabitResponseDto> {
+    const today = await this.today(userId);
+    const habit = await this.repository.findOwned(userId, habitId);
+    if (!habit) {
+      throw new AppError(
+        404,
+        ERROR_CODE.RESOURCE_NOT_FOUND,
+        "The requested habit was not found.",
+      );
+    }
+
+    if (habit.type !== HABIT_TYPE.BUILD) {
+      throw new AppError(
+        409,
+        ERROR_CODE.INVALID_HABIT_TYPE_OPERATION,
+        "This action is only available for build habits.",
+      );
+    }
+
+    const startDate = this.startDate(habit);
+    if (!isCompletionEligible(startDate, today, date)) {
+      throw new AppError(
+        409,
+        ERROR_CODE.DATE_NOT_ELIGIBLE,
+        "Choose an eligible date in the current week.",
+      );
+    }
+
+    await this.repository.setCompletion({
+      userId,
+      habitId,
+      date,
+      present,
+    });
+    const completions = await this.repository.completionDatesForHabit(
+      userId,
+      habitId,
+    );
+    return this.present(habit, today, startOfWeek(today), completions);
+  }
+
   private present(
     habit: Habit,
     today: string,
     weekStart: string,
+    completions: string[],
   ): HabitResponseDto {
-    const startDate = habit.start_date.toISOString().slice(0, 10);
+    const startDate = this.startDate(habit);
     const common = {
       id: habit.id,
       name: habit.name,
-      type: habit.type,
       start_date: startDate,
       created_at: habit.created_at.toISOString(),
       updated_at: habit.updated_at.toISOString(),
     };
-    if (habit.type === "break") {
+
+    if (habit.type === HABIT_TYPE.BREAK) {
       return new BreakHabitResponseDto({
         ...common,
-        type: "break",
+        type: HABIT_TYPE.BREAK,
         tracking: {
           current_clean_streak: toEpochDay(today) - toEpochDay(startDate) + 1,
           last_relapse_date: null,
         },
       });
     }
-    const days = Array.from({ length: 7 }, (_, index) => {
-      const date = addDays(weekStart, index);
-      const state =
-        date < startDate
-          ? ("ineligible" as const)
-          : date > today
-            ? ("future" as const)
-            : date === today
-              ? ("pending" as const)
-              : ("missed" as const);
-      return {
-        date,
-        state,
-        mutable:
-          state === "pending" ||
-          (state === "missed" && weekStart === startOfWeek(today)),
-      };
+
+    const tracking = buildTracking({
+      startDate,
+      today,
+      weekStart,
+      completions,
     });
-    const missed = days.filter((day) => day.state === "missed").length;
-    const pending = days.filter((day) => day.state === "pending").length;
     return new BuildHabitResponseDto({
       ...common,
-      type: "build",
+      type: HABIT_TYPE.BUILD,
       tracking: {
-        current_streak: 0,
+        current_streak: tracking.currentStreak,
         week: {
-          starts_on: weekStart,
-          ends_on: addDays(weekStart, 6),
-          completed_day_count: 0,
-          missed_day_count: missed,
-          pending_day_count: pending,
-          completion_rate_percent: 0,
-          days,
+          starts_on: tracking.week.startsOn,
+          ends_on: tracking.week.endsOn,
+          completed_day_count: tracking.week.completedDayCount,
+          missed_day_count: tracking.week.missedDayCount,
+          pending_day_count: tracking.week.pendingDayCount,
+          completion_rate_percent: tracking.week.completionRatePercent,
+          days: tracking.week.days,
         },
       },
     });
+  }
+
+  private startDate(habit: Habit): string {
+    return habit.start_date.toISOString().slice(0, 10);
   }
 
   private async today(userId: string): Promise<string> {

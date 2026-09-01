@@ -7,7 +7,15 @@ import {
 
 import { uuidToBinary } from "../../../database/binary-uuid";
 import { DATABASE_POOL } from "../../../database/database.constants";
-import { type Habit } from "../habit.types";
+import {
+  type CompletionDateRow,
+  type CompletionRow,
+  type Habit,
+} from "../habit.types";
+
+function toCalendarDate(date: Date): string {
+  return date.toISOString().slice(0, 10);
+}
 
 @Injectable()
 export class HabitsRepository {
@@ -28,6 +36,87 @@ export class HabitsRepository {
     );
 
     return rows;
+  }
+
+  public async completionDates(userId: string): Promise<Map<string, string[]>> {
+    const [rows] = await this.pool.execute<CompletionRow[]>(
+      `SELECT LOWER(BIN_TO_UUID(habit_completions.habit_id)) AS habit_id,
+              habit_completions.completion_date
+       FROM habit_completions
+       INNER JOIN habits ON habits.id = habit_completions.habit_id
+       WHERE habits.user_id = ?
+       ORDER BY habit_completions.completion_date`,
+      [uuidToBinary(userId)],
+    );
+    const grouped = new Map<string, string[]>();
+    for (const row of rows) {
+      const dates = grouped.get(row.habit_id) ?? [];
+      dates.push(toCalendarDate(row.completion_date));
+      grouped.set(row.habit_id, dates);
+    }
+    return grouped;
+  }
+
+  public async completionDatesForHabit(
+    userId: string,
+    habitId: string,
+  ): Promise<string[]> {
+    const [rows] = await this.pool.execute<CompletionDateRow[]>(
+      `SELECT habit_completions.completion_date
+       FROM habit_completions
+       INNER JOIN habits ON habits.id = habit_completions.habit_id
+       WHERE habits.user_id = ? AND habits.id = ?
+       ORDER BY habit_completions.completion_date`,
+      [uuidToBinary(userId), uuidToBinary(habitId)],
+    );
+    return rows.map((row) => toCalendarDate(row.completion_date));
+  }
+
+  public async findOwned(
+    userId: string,
+    habitId: string,
+  ): Promise<Habit | null> {
+    const [rows] = await this.pool.execute<(RowDataPacket & Habit)[]>(
+      `SELECT LOWER(BIN_TO_UUID(id)) AS id,
+              name,
+              type,
+              start_date,
+              created_at,
+              updated_at
+       FROM habits
+       WHERE id = ? AND user_id = ?
+       LIMIT 1`,
+      [uuidToBinary(habitId), uuidToBinary(userId)],
+    );
+    return rows[0] ?? null;
+  }
+
+  public async setCompletion(input: {
+    userId: string;
+    habitId: string;
+    date: string;
+    present: boolean;
+  }): Promise<void> {
+    if (input.present) {
+      await this.pool.execute<ResultSetHeader>(
+        `INSERT IGNORE INTO habit_completions (habit_id, completion_date)
+         SELECT id, ?
+         FROM habits
+         WHERE id = ? AND user_id = ?`,
+        [input.date, uuidToBinary(input.habitId), uuidToBinary(input.userId)],
+      );
+      return;
+    }
+
+    await this.pool.execute<ResultSetHeader>(
+      `DELETE habit_completions
+       FROM habit_completions
+       INNER JOIN habits ON habits.id = habit_completions.habit_id
+       WHERE habit_completions.habit_id = ?
+         AND habit_completions.completion_date = ?
+         AND habits.user_id = ?`,
+      [uuidToBinary(input.habitId), input.date, uuidToBinary(input.userId)],
+    );
   }
 
   public async create(input: {

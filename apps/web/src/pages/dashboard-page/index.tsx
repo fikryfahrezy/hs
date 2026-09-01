@@ -1,6 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   CreateHabitRequestSchema,
+  HABIT_TYPE,
   type CreateHabitRequest,
 } from "@habit-shaper/contracts";
 import { useForm } from "react-hook-form";
@@ -27,7 +28,7 @@ export function DashboardPage() {
     formState: { errors },
   } = useForm<CreateHabitRequest>({
     resolver: zodResolver(CreateHabitRequestSchema),
-    defaultValues: { name: "", type: "build" },
+    defaultValues: { name: "", type: HABIT_TYPE.BUILD },
   });
   const submit = handleSubmit(async (input) => {
     try {
@@ -37,8 +38,10 @@ export function DashboardPage() {
       // Mutation feedback remains visible and the form values are retained.
     }
   });
-  const build = habits.data?.filter((habit) => habit.type === "build") ?? [];
-  const breaking = habits.data?.filter((habit) => habit.type === "break") ?? [];
+  const build =
+    habits.data?.filter((habit) => habit.type === HABIT_TYPE.BUILD) ?? [];
+  const breaking =
+    habits.data?.filter((habit) => habit.type === HABIT_TYPE.BREAK) ?? [];
 
   return (
     <AppShell
@@ -76,8 +79,10 @@ export function DashboardPage() {
               id="habit-type"
               label="Type"
             >
-              <option value="build">Build — do more of this</option>
-              <option value="break">Break — stay clear of this</option>
+              <option value={HABIT_TYPE.BUILD}>Build — do more of this</option>
+              <option value={HABIT_TYPE.BREAK}>
+                Break — stay clear of this
+              </option>
             </SelectField>
             <Button type="submit" disabled={creation.isPending}>
               {creation.isPending ? "Adding…" : "Add habit"}

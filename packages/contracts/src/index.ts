@@ -16,6 +16,7 @@ export { CalendarDateSchema } from "./common/calendar-date";
 export { IdentifierSchema } from "./common/identifiers";
 export {
   CreateHabitRequestSchema,
+  HABIT_TYPE,
   HabitTypeSchema,
   type CreateHabitRequest,
   type HabitType,
@@ -24,6 +25,7 @@ export {
   BreakHabitResponseSchema,
   BuildDayStateSchema,
   BuildHabitResponseSchema,
+  HABIT_DAY_STATE,
   HabitListResponseSchema,
   HabitResponseSchema,
   ListHabitsQuerySchema,
@@ -31,4 +33,5 @@ export {
   type BuildDayState,
   type BuildHabitResponse,
   type HabitResponse,
+  type HabitDayState,
 } from "./habits/habit-response";
