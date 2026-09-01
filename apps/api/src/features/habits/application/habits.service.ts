@@ -15,6 +15,7 @@ import {
 } from "../../../common/time/calendar";
 import { AuthService } from "../../auth/application/auth.service";
 import { HabitsRepository } from "../data/habits.repository";
+import { cleanStreak } from "../domain/break-tracking";
 import { buildTracking, isCompletionEligible } from "../domain/build-tracking";
 import {
   BreakHabitResponseDto,
@@ -49,13 +50,19 @@ export class HabitsService {
         },
       );
     }
-
-    const [habits, completions] = await Promise.all([
+    const [habits, completions, relapses] = await Promise.all([
       this.repository.list(userId),
       this.repository.completionDates(userId),
+      this.repository.latestRelapses(userId),
     ]);
     return habits.map((habit) =>
-      this.present(habit, today, weekStart, completions.get(habit.id) ?? []),
+      this.present(
+        habit,
+        today,
+        weekStart,
+        completions.get(habit.id) ?? [],
+        relapses.get(habit.id) ?? null,
+      ),
     );
   }
 
@@ -71,7 +78,7 @@ export class HabitsService {
       type: input.type,
       start_date: today,
     });
-    return this.present(habit, today, startOfWeek(today), []);
+    return this.present(habit, today, startOfWeek(today), [], null);
   }
 
   public async delete(userId: string, habitId: string): Promise<void> {
@@ -127,7 +134,33 @@ export class HabitsService {
       userId,
       habitId,
     );
-    return this.present(habit, today, startOfWeek(today), completions);
+    return this.present(habit, today, startOfWeek(today), completions, null);
+  }
+
+  public async relapse(
+    userId: string,
+    habitId: string,
+  ): Promise<HabitResponseDto> {
+    const today = await this.today(userId);
+    const habit = await this.repository.findOwned(userId, habitId);
+    if (!habit) {
+      throw new AppError(
+        404,
+        ERROR_CODE.RESOURCE_NOT_FOUND,
+        "The requested habit was not found.",
+      );
+    }
+
+    if (habit.type !== HABIT_TYPE.BREAK) {
+      throw new AppError(
+        409,
+        ERROR_CODE.INVALID_HABIT_TYPE_OPERATION,
+        "This action is only available for break habits.",
+      );
+    }
+
+    await this.repository.recordRelapse({ userId, habitId, date: today });
+    return this.present(habit, today, startOfWeek(today), [], today);
   }
 
   private present(
@@ -135,6 +168,7 @@ export class HabitsService {
     today: string,
     weekStart: string,
     completions: string[],
+    lastRelapse: string | null,
   ): HabitResponseDto {
     const startDate = this.startDate(habit);
     const common = {
@@ -150,8 +184,8 @@ export class HabitsService {
         ...common,
         type: HABIT_TYPE.BREAK,
         tracking: {
-          current_clean_streak: toEpochDay(today) - toEpochDay(startDate) + 1,
-          last_relapse_date: null,
+          current_clean_streak: cleanStreak(startDate, today, lastRelapse),
+          last_relapse_date: lastRelapse,
         },
       });
     }

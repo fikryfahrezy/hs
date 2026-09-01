@@ -4,6 +4,7 @@ import {
   createHabit,
   deleteHabit,
   listHabits,
+  recordRelapse,
   setCompletion,
 } from "../api/habits-api";
 
@@ -34,6 +35,14 @@ export function useCompletionMutation() {
   return useMutation({
     mutationFn: (input: { habitId: string; date: string; present: boolean }) =>
       setCompletion(input.habitId, input.date, input.present),
+    onSuccess: () => client.invalidateQueries({ queryKey: habitQueryKeys.all }),
+  });
+}
+
+export function useRelapseMutation() {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: recordRelapse,
     onSuccess: () => client.invalidateQueries({ queryKey: habitQueryKeys.all }),
   });
 }

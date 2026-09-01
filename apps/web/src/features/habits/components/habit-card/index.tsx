@@ -5,13 +5,16 @@ import { type Habit } from "../../habit.types";
 import {
   useCompletionMutation,
   useDeleteHabitMutation,
+  useRelapseMutation,
 } from "../../queries/habit-queries";
 import "./styles.css";
 
 export function HabitCard({ habit }: { habit: Habit }) {
   const [confirming, setConfirming] = useState(false);
+  const [confirmingRelapse, setConfirmingRelapse] = useState(false);
   const deletion = useDeleteHabitMutation();
   const completion = useCompletionMutation();
+  const relapse = useRelapseMutation();
   return (
     <article className="habit-card">
       <div>
@@ -53,9 +56,46 @@ export function HabitCard({ habit }: { habit: Habit }) {
           </small>
         </div>
       ) : (
-        <p>
-          <strong>{habit.tracking.currentCleanStreak}</strong> clean days
-        </p>
+        <div className="break-tracking">
+          <p>
+            <strong>{habit.tracking.currentCleanStreak}</strong> clean days
+          </p>
+          {habit.tracking.lastRelapseDate ? (
+            <small>Last relapse: {habit.tracking.lastRelapseDate}</small>
+          ) : (
+            <small>No relapses recorded</small>
+          )}
+          {confirmingRelapse ? (
+            <div className="confirm-row">
+              <span>
+                A setback is information, not failure. Record today’s relapse?
+              </span>
+              <Button
+                variant="secondary"
+                onClick={() => setConfirmingRelapse(false)}
+              >
+                Cancel
+              </Button>
+              <Button
+                disabled={relapse.isPending}
+                onClick={() =>
+                  relapse.mutate(habit.id, {
+                    onSuccess: () => setConfirmingRelapse(false),
+                  })
+                }
+              >
+                Record relapse
+              </Button>
+            </div>
+          ) : (
+            <Button
+              variant="secondary"
+              onClick={() => setConfirmingRelapse(true)}
+            >
+              Record relapse
+            </Button>
+          )}
+        </div>
       )}
       {confirming ? (
         <div
@@ -87,6 +127,11 @@ export function HabitCard({ habit }: { habit: Habit }) {
       {completion.isError ? (
         <p className="form-error" role="alert">
           Could not update this day.
+        </p>
+      ) : null}
+      {relapse.isError ? (
+        <p className="form-error" role="alert">
+          Could not record the relapse. Try again.
         </p>
       ) : null}
     </article>

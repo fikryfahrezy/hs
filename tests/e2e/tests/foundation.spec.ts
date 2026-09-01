@@ -36,12 +36,16 @@ test("registers, restores the session, logs out, and logs in", async ({
   ).toBeVisible();
 
   await page.reload();
-  await expect(page.getByText(email)).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "Your daily shape" }),
+  ).toBeVisible();
   await page.getByRole("button", { name: "Sign out" }).click();
   await expect(page.getByRole("heading", { name: "Sign in" })).toBeVisible();
 
   await page.getByLabel("Email").fill(email);
   await page.getByLabel("Password").fill(password);
   await page.getByRole("button", { name: "Sign in" }).click();
-  await expect(page.getByText(email)).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "Your daily shape" }),
+  ).toBeVisible();
 });

@@ -85,4 +85,13 @@ export class HabitsController {
       false,
     );
   }
+
+  @Post(":habit_id/relapses")
+  @HttpCode(HttpStatus.OK)
+  public relapse(
+    @CurrentUserId() userId: string,
+    @Param("habit_id") id: string,
+  ): Promise<HabitResponseDto> {
+    return this.habits.relapse(userId, parseSchema(IdentifierSchema, id));
+  }
 }

@@ -951,32 +951,39 @@ treat every duplicate-key error as an email conflict.
 
 ### Completion mutation
 
-Run a completion mutation on one acquired connection:
+The application service:
 
-1. begin a transaction;
-2. select the owned habit `FOR UPDATE`;
-3. verify build type and date eligibility;
-4. for `PUT`, insert with duplicate-safe ensure-present semantics;
-5. for `DELETE`, delete the composite key if present;
-6. read the completion dates needed to calculate the returned current-week
-   state and current streak;
-7. commit; and
-8. return the mapped response.
+1. loads the owned habit;
+2. verifies build type and date eligibility;
+3. asks the repository to apply the mutation with ownership included in the
+   SQL;
+4. reads the owned habit's completion dates needed for the returned current-week
+   state and current streak; and
+5. constructs the response DTO.
+
+For `PUT`, use duplicate-safe ensure-present semantics with an
+ownership-scoped `INSERT ... SELECT`. For `DELETE`, delete the composite key
+through an ownership-scoped habit join. These operations do not require a
+validation callback or explicit transaction in the repository.
 
 The composite primary key is the final concurrency guarantee. A duplicate-safe
 insert must not overwrite `created_at` on a repeated request.
 
 ### Relapse mutation
 
-Use the same owned-habit lock pattern:
+The application service:
 
-1. begin a transaction;
-2. select the owned habit `FOR UPDATE`;
-3. verify break type;
-4. insert today's relapse with duplicate-safe ensure-present semantics;
-5. select the latest relapse;
-6. commit; and
-7. return recalculated state.
+1. resolves today from the authenticated user's stored timezone;
+2. loads the owned habit;
+3. verifies break type;
+4. asks the repository to insert today's relapse with duplicate-safe,
+   ownership-scoped `INSERT ... SELECT` semantics; and
+5. constructs the recalculated response DTO using today as the known latest
+   relapse.
+
+The one idempotent insert does not require an explicit transaction. Listing
+habits still retrieves the latest relapse per returned habit in one grouped
+query.
 
 ### Goal mutation
 
@@ -1020,6 +1027,10 @@ packages/contracts/src/
 ```
 
 - Each module exports a Zod schema and its inferred TypeScript type.
+- Finite shared vocabularies export an `as const` object and pass that object
+  directly to `z.enum`, for example `z.enum(HABIT_TYPE)`. Application code uses
+  the exported values instead of repeating string literals or introducing a
+  TypeScript `enum`.
 - Request schemas are strict and reject unknown properties. Response schemas
   validate required known fields while accepting and stripping additive unknown
   properties for forward compatibility.

@@ -50,10 +50,10 @@ remain the detailed engineering reference.
 
 ## 5. Break-habit tracking
 
-- [ ] Add the habit-relapses migration.
-- [ ] Implement clean-streak calculation and today's relapse operation.
-- [ ] Add supportive relapse confirmation and mutation feedback.
-- [ ] Test reset behavior, idempotency, ownership, boundaries, and UI states.
+- [x] Add the habit-relapses migration.
+- [x] Implement clean-streak calculation and today's relapse operation.
+- [x] Add supportive relapse confirmation and mutation feedback.
+- [x] Test reset behavior, idempotency, ownership, boundaries, and UI states.
 
 ## 6. Goal management
 

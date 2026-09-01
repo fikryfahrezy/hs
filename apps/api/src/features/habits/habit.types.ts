@@ -18,3 +18,8 @@ export type CompletionRow = RowDataPacket & {
 export type CompletionDateRow = RowDataPacket & {
   completion_date: Date;
 };
+
+export type LatestRelapseRow = RowDataPacket & {
+  habit_id: string;
+  relapse_date: Date;
+};

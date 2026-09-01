@@ -89,4 +89,31 @@ describe("habit endpoints", () => {
     const corrected = await owner.delete(endpoint).expect(200);
     expect(corrected.body.tracking.week.completed_day_count).toBe(0);
   });
+
+  it("records an owned relapse idempotently and rejects other habit types", async () => {
+    const owner = await register(app, "relapse-owner");
+    const stranger = await register(app, "relapse-stranger");
+    const breaking = await owner
+      .post("/api/habits")
+      .send({ name: "Doomscrolling", type: "break" })
+      .expect(201);
+    const building = await owner
+      .post("/api/habits")
+      .send({ name: "Read", type: "build" })
+      .expect(201);
+    const endpoint = `/api/habits/${breaking.body.id}/relapses`;
+
+    await stranger.post(endpoint).expect(404);
+
+    const recorded = await owner.post(endpoint).expect(200);
+    expect(recorded.body.tracking.current_clean_streak).toBe(0);
+    expect(recorded.body.tracking.last_relapse_date).toBe(
+      breaking.body.start_date,
+    );
+
+    const repeated = await owner.post(endpoint).expect(200);
+    expect(repeated.body.tracking.current_clean_streak).toBe(0);
+
+    await owner.post(`/api/habits/${building.body.id}/relapses`).expect(409);
+  });
 });

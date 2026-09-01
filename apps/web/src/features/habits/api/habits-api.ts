@@ -36,3 +36,12 @@ export async function setCompletion(
     ),
   );
 }
+
+export async function recordRelapse(habitId: string): Promise<Habit> {
+  return habitFromApi(
+    await requestJson(
+      `${HABITS_ENDPOINT}/${encodeURIComponent(habitId)}/relapses`,
+      { method: "POST" },
+    ),
+  );
+}

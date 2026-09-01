@@ -11,6 +11,7 @@ import {
   type CompletionDateRow,
   type CompletionRow,
   type Habit,
+  type LatestRelapseRow,
 } from "../habit.types";
 
 function toCalendarDate(date: Date): string {
@@ -72,6 +73,21 @@ export class HabitsRepository {
     return rows.map((row) => toCalendarDate(row.completion_date));
   }
 
+  public async latestRelapses(userId: string): Promise<Map<string, string>> {
+    const [rows] = await this.pool.execute<LatestRelapseRow[]>(
+      `SELECT LOWER(BIN_TO_UUID(habit_relapses.habit_id)) AS habit_id,
+              MAX(habit_relapses.relapse_date) AS relapse_date
+       FROM habit_relapses
+       INNER JOIN habits ON habits.id = habit_relapses.habit_id
+       WHERE habits.user_id = ?
+       GROUP BY habit_relapses.habit_id`,
+      [uuidToBinary(userId)],
+    );
+    return new Map(
+      rows.map((row) => [row.habit_id, toCalendarDate(row.relapse_date)]),
+    );
+  }
+
   public async findOwned(
     userId: string,
     habitId: string,
@@ -89,6 +105,20 @@ export class HabitsRepository {
       [uuidToBinary(habitId), uuidToBinary(userId)],
     );
     return rows[0] ?? null;
+  }
+
+  public async recordRelapse(input: {
+    userId: string;
+    habitId: string;
+    date: string;
+  }): Promise<void> {
+    await this.pool.execute<ResultSetHeader>(
+      `INSERT IGNORE INTO habit_relapses (habit_id, relapse_date)
+       SELECT id, ?
+       FROM habits
+       WHERE id = ? AND user_id = ?`,
+      [input.date, uuidToBinary(input.habitId), uuidToBinary(input.userId)],
+    );
   }
 
   public async setCompletion(input: {
