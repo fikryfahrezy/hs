@@ -1,0 +1,34 @@
+@layer components {
+  button[data-variant] {
+    min-height: 2.75rem;
+    border: 1px solid var(--button-border);
+    border-radius: var(--radius-control);
+    padding: var(--space-2) var(--space-4);
+    background: var(--button-background);
+    color: var(--button-foreground);
+    font: inherit;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  button[data-variant="primary"] {
+    --button-background: var(--color-accent);
+    --button-border: var(--color-accent);
+    --button-foreground: var(--color-on-accent);
+  }
+
+  button[data-variant="secondary"] {
+    --button-background: var(--color-surface);
+    --button-border: var(--color-border-strong);
+    --button-foreground: var(--color-text);
+  }
+
+  button[data-variant]:hover:not(:disabled) {
+    filter: brightness(0.96);
+  }
+
+  button[data-variant]:disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
+  }
+}

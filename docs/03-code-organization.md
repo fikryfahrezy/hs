@@ -200,10 +200,7 @@ function TestProviders({ children }: PropsWithChildren) {
   return children;
 }
 
-function render(
-  ui: ReactElement,
-  options?: Omit<RenderOptions, "wrapper">,
-) {
+function render(ui: ReactElement, options?: Omit<RenderOptions, "wrapper">) {
   return testingLibraryRender(ui, {
     wrapper: TestProviders,
     ...options,

@@ -1,0 +1,16 @@
+:root,
+:root[data-theme="light"] {
+  color-scheme: light;
+  --color-background: var(--neutral-50);
+  --color-surface: var(--neutral-0);
+  --color-text: var(--neutral-950);
+  --color-text-muted: var(--neutral-500);
+  --color-border: var(--neutral-200);
+  --color-border-strong: var(--neutral-500);
+  --color-accent: var(--green-500);
+  --color-accent-strong: var(--green-700);
+  --color-on-accent: var(--neutral-0);
+  --color-positive: var(--green-700);
+  --color-danger: var(--red-600);
+  --color-focus-ring: var(--green-500);
+}

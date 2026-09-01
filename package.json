@@ -1,0 +1,44 @@
+{
+  "name": "habit-shaper",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "A lightweight daily habit building and breaking application.",
+  "engines": {
+    "node": ">=24",
+    "npm": ">=11"
+  },
+  "packageManager": "npm@11.19.0",
+  "workspaces": [
+    "apps/*",
+    "packages/*",
+    "tests/*"
+  ],
+  "scripts": {
+    "build": "npm run build --workspace @habit-shaper/contracts && npm run build --workspace @habit-shaper/api && npm run build --workspace @habit-shaper/web",
+    "db:migrate": "dbmate --migrations-dir db/migrations up",
+    "db:new": "dbmate --migrations-dir db/migrations new",
+    "db:rollback": "dbmate --migrations-dir db/migrations rollback",
+    "dev": "concurrently --kill-others-on-fail --names api,web \"npm run dev --workspace @habit-shaper/api\" \"npm run dev --workspace @habit-shaper/web\"",
+    "format": "oxfmt --write .",
+    "format:check": "oxfmt --check .",
+    "lint": "oxlint --deny-warnings .",
+    "lint:fix": "oxlint --fix .",
+    "prepare": "lefthook install",
+    "test": "npm run test:web && npm run test:api:unit",
+    "test:api:integration": "npm run test:integration --workspace @habit-shaper/api",
+    "test:api:unit": "npm run test:unit --workspace @habit-shaper/api",
+    "test:e2e": "npm run test --workspace @habit-shaper/e2e",
+    "test:web": "npm run test --workspace @habit-shaper/web",
+    "typecheck": "npm run typecheck --workspace @habit-shaper/contracts && npm run typecheck --workspace @habit-shaper/api && npm run typecheck --workspace @habit-shaper/web && npm run typecheck --workspace @habit-shaper/e2e",
+    "validate": "npm run format:check && npm run lint && npm run typecheck && npm test && npm run build"
+  },
+  "devDependencies": {
+    "concurrently": "10.0.5",
+    "dbmate": "2.35.1",
+    "lefthook": "2.1.12",
+    "oxfmt": "0.65.0",
+    "oxlint": "1.80.0",
+    "typescript": "6.0.3"
+  }
+}

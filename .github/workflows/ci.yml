@@ -1,0 +1,166 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+env:
+  NODE_VERSION: 24.20.0
+
+jobs:
+  changes:
+    name: Detect changes
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    outputs:
+      frontend: ${{ steps.filter.outputs.frontend }}
+      backend: ${{ steps.filter.outputs.backend }}
+      e2e: ${{ steps.filter.outputs.e2e }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
+        with:
+          fetch-depth: 0
+      - name: Classify changed paths
+        id: filter
+        run: >-
+          node scripts/detect-changes.mjs
+          "${{ github.event.pull_request.base.sha || github.event.before }}"
+          "${{ github.sha }}"
+
+  quality:
+    name: Repository quality
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
+      - name: Set up Node.js
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - run: npm ci
+      - run: npm run format:check
+      - run: npm run lint
+
+  frontend:
+    name: Frontend
+    if: needs.changes.outputs.frontend == 'true'
+    needs: changes
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
+      - name: Set up Node.js
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck --workspace @habit-shaper/contracts
+      - run: npm run typecheck --workspace @habit-shaper/web
+      - run: npm run test:web
+      - run: npm run build --workspace @habit-shaper/contracts
+      - run: npm run build --workspace @habit-shaper/web
+
+  backend:
+    name: Backend
+    if: needs.changes.outputs.backend == 'true'
+    needs: changes
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    services:
+      mysql:
+        image: mysql:8.4.11
+        env:
+          MYSQL_DATABASE: habit_shaper_test
+          MYSQL_PASSWORD: habit_shaper_test
+          MYSQL_ROOT_PASSWORD: habit_shaper_root_test
+          MYSQL_USER: habit_shaper
+          TZ: UTC
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping --host=127.0.0.1 --user=root --password=habit_shaper_root_test --silent"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=20
+    env:
+      COOKIE_SECURE: "false"
+      DATABASE_URL: mysql://habit_shaper:habit_shaper_test@127.0.0.1:3306/habit_shaper_test
+      JWT_SECRET: test-only-secret-with-at-least-32-bytes
+      NODE_ENV: test
+      PORT: 3000
+      WEB_ORIGIN: http://localhost:8080
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
+      - name: Set up Node.js
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck --workspace @habit-shaper/contracts
+      - run: npm run typecheck --workspace @habit-shaper/api
+      - run: npm run test:api:unit
+      - run: npm run db:migrate
+      - run: npm run test:api:integration
+      - run: npm run build --workspace @habit-shaper/contracts
+      - run: npm run build --workspace @habit-shaper/api
+
+  e2e:
+    name: End to end
+    if: >-
+      always() &&
+      needs.changes.outputs.e2e == 'true' &&
+      needs.quality.result == 'success' &&
+      (needs.frontend.result == 'success' || needs.frontend.result == 'skipped') &&
+      (needs.backend.result == 'success' || needs.backend.result == 'skipped')
+    needs:
+      - changes
+      - quality
+      - frontend
+      - backend
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
+      - name: Set up Node.js
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Start Compose stack
+        run: >-
+          docker compose
+          --project-name habit-shaper-${{ github.run_id }}-${{ github.run_attempt }}
+          up --build --detach --wait
+      - run: npm run test:e2e
+      - name: Print Compose logs after failure
+        if: failure()
+        run: >-
+          docker compose
+          --project-name habit-shaper-${{ github.run_id }}-${{ github.run_attempt }}
+          logs --no-color
+      - name: Stop Compose stack
+        if: always()
+        run: >-
+          docker compose
+          --project-name habit-shaper-${{ github.run_id }}-${{ github.run_attempt }}
+          down --volumes --remove-orphans

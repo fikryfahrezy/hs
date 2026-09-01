@@ -1,0 +1,17 @@
+module.exports = {
+  clearMocks: true,
+  collectCoverageFrom: ["src/**/*.{ts,tsx}", "!src/index.tsx"],
+  coverageDirectory: "coverage",
+  moduleNameMapper: {
+    "^@test/(.*)$": "<rootDir>/test/$1",
+    "\\.(css|less|scss|sass)$": "<rootDir>/test/style-mock.cjs",
+  },
+  rootDir: ".",
+  setupFilesAfterEnv: ["<rootDir>/test/setup-tests.ts"],
+  testEnvironment: "jsdom",
+  testMatch: ["<rootDir>/src/**/*.test.{ts,tsx}"],
+  watchman: false,
+  transform: {
+    "^.+\\.[tj]sx?$": "babel-jest",
+  },
+};

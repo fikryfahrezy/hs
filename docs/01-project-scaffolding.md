@@ -64,9 +64,8 @@ unambiguous.
 
 ## Runtime and package-management policy
 
-- Pin the selected Node.js 24 LTS patch through `engines`, `.nvmrc`, and Docker
-  base images.
-- Declare an exact npm version with the root `packageManager` field.
+- Pin Node.js 24.20.0 through `engines`, `.nvmrc`, and Docker base images.
+- Pin npm 11.19.0 with the root `packageManager` field.
 - Save every direct dependency and development dependency with an exact version;
   add `save-exact=true` to the root `.npmrc`.
 - Commit `package-lock.json` and use `npm ci` in CI and Docker builds.
@@ -139,7 +138,7 @@ Runtime dependencies:
 - `@habit-shaper/contracts`
 - `cookie-parser`
 - `helmet`
-- a password hashing package selected during the authentication slice
+- `argon2` for the specified Argon2id password hashing contract
 - Nest throttling support for authentication endpoints
 
 Development dependencies:
@@ -184,24 +183,24 @@ scope are defined in [Testing strategy](./06-testing-strategy.md).
 
 The root `package.json` should provide a predictable interface:
 
-| Command | Responsibility |
-| --- | --- |
-| `npm run dev` | Start web and API development processes; database infrastructure may run through Compose. |
-| `npm run build` | Build contracts first, followed by API and web. |
-| `npm run typecheck` | Type-check all TypeScript workspaces without emitting. |
-| `npm run lint` | Run Oxlint across tracked source/config files. |
-| `npm run lint:fix` | Apply safe Oxlint fixes. |
-| `npm run format` | Apply Oxfmt. |
-| `npm run format:check` | Verify formatting without modifying files. |
-| `npm run test:web` | Run frontend Jest and React Testing Library tests. |
-| `npm run test:api:unit` | Run infrastructure-free API Jest tests. |
-| `npm run test:api:integration` | Run API and repository integration tests against migrated MySQL. |
-| `npm test` | Run fast frontend, contracts when applicable, and API unit suites. |
-| `npm run test:e2e` | Run Playwright tests. |
-| `npm run db:new -- <name>` | Create a timestamped SQL migration with Dbmate. |
-| `npm run db:migrate` | Wait for MySQL and apply pending migrations. |
-| `npm run db:rollback` | Roll back the latest migration in development. |
-| `npm run validate` | Run formatting check, lint, type-check, unit tests, and builds. |
+| Command                        | Responsibility                                                                            |
+| ------------------------------ | ----------------------------------------------------------------------------------------- |
+| `npm run dev`                  | Start web and API development processes; database infrastructure may run through Compose. |
+| `npm run build`                | Build contracts first, followed by API and web.                                           |
+| `npm run typecheck`            | Type-check all TypeScript workspaces without emitting.                                    |
+| `npm run lint`                 | Run Oxlint across tracked source/config files.                                            |
+| `npm run lint:fix`             | Apply safe Oxlint fixes.                                                                  |
+| `npm run format`               | Apply Oxfmt.                                                                              |
+| `npm run format:check`         | Verify formatting without modifying files.                                                |
+| `npm run test:web`             | Run frontend Jest and React Testing Library tests.                                        |
+| `npm run test:api:unit`        | Run infrastructure-free API Jest tests.                                                   |
+| `npm run test:api:integration` | Run API and repository integration tests against migrated MySQL.                          |
+| `npm test`                     | Run fast frontend, contracts when applicable, and API unit suites.                        |
+| `npm run test:e2e`             | Run Playwright tests.                                                                     |
+| `npm run db:new -- <name>`     | Create a timestamped SQL migration with Dbmate.                                           |
+| `npm run db:migrate`           | Wait for MySQL and apply pending migrations.                                              |
+| `npm run db:rollback`          | Roll back the latest migration in development.                                            |
+| `npm run validate`             | Run formatting check, lint, type-check, unit tests, and builds.                           |
 
 Commands should use explicit workspace names where build order matters rather
 than assuming glob order.
@@ -217,8 +216,6 @@ than assuming glob order.
 - Preserve the supplied coding-test brief in the repository.
 - Install root tooling and generate the initial lockfile.
 
-Suggested commit: `chore: initialize npm workspace`
-
 ### 2. Scaffold the applications
 
 - Generate `apps/web` from the Vite `react-ts` template without creating a
@@ -229,15 +226,11 @@ Suggested commit: `chore: initialize npm workspace`
   health behavior.
 - Normalize both package manifests for the root workspace.
 
-Suggested commit: `chore: scaffold web and api applications`
-
 ### 3. Add the shared contracts workspace
 
 - Create a buildable TypeScript package.
 - Export one small health response schema to prove API-to-web consumption.
 - Configure project references or explicit build order.
-
-Suggested commit: `chore: add shared api contracts package`
 
 ### 4. Configure React Compiler and frontend routing
 
@@ -251,8 +244,6 @@ Suggested commit: `chore: add shared api contracts package`
 - Add the Jest environment setup and custom Testing Library render utility.
 - Add one component test proving the Jest/RTL transform works.
 
-Suggested commit: `chore: configure web runtime and test harness`
-
 ### 5. Configure the NestJS foundation
 
 - Add configuration validation, global request validation, security headers,
@@ -262,20 +253,16 @@ Suggested commit: `chore: configure web runtime and test harness`
 - Add `DatabaseModule` with a pool provider, without feature queries yet.
 - Add `/api/health` with a small unit test.
 
-Suggested commit: `chore: configure api foundation`
-
 ### 6. Configure quality tooling and hooks
 
 - Add the root Oxlint configuration and the agreed `.oxfmtrc.json` from
   [Tooling and runtime conventions](./02-tooling-and-runtime-conventions.md#oxfmt).
 - Add workspace-aware type-check scripts.
 - Configure Lefthook:
-  - pre-commit: format check and lint staged source files;
-  - pre-push: type-check and unit tests.
-- Keep the full E2E suite out of pre-commit/pre-push hooks because it depends on
-  containers and is comparatively slow.
-
-Suggested commit: `chore: add repository quality gates`
+  - pre-commit: format check and lint staged source files, then type-check all
+    workspaces.
+- Keep tests out of Git hooks because they can slow down routine commits. Run
+  them explicitly during development and through CI.
 
 ### 7. Add migration and container plumbing
 
@@ -293,19 +280,15 @@ The first real migration is created after the schema decisions are confirmed.
 The scaffold verifies the migration CLI, Docker target, and Compose dependency
 chain without inventing a temporary application table.
 
-Suggested commit: `chore: add database migration and container infrastructure`
-
 ### 8. Add CI skeleton
 
 - Add the single orchestrating GitHub Actions workflow defined in
   [Continuous integration](./05-continuous-integration.md).
-- Configure change detection, repository quality, frontend, backend, E2E, and
-  final gate jobs.
+- Configure change detection, repository quality, frontend, backend, and E2E
+  jobs.
 - Pin the runner label and every referenced action according to the CI policy.
 - Do not add artifact upload, cache storage, image publishing, or deployment
   steps.
-
-Suggested commit: `ci: add change-aware validation workflow`
 
 ## Scaffold acceptance criteria
 
@@ -328,7 +311,7 @@ Suggested commit: `ci: add change-aware validation workflow`
 - Docker images build from the root context without copying host `node_modules`.
 - Final web and API images contain runtime artifacts and dependencies only.
 - Custom Dockerfiles use pinned stable Debian- or Ubuntu-based images.
-- The CI workflow produces one stable required gate and persists no build or
-  test artifacts.
+- The CI workflow runs change-aware validation and persists no build or test
+  artifacts.
 - No secrets, nested lockfiles, generated builds, or nested Git repositories are
   committed.

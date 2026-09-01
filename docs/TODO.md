@@ -5,22 +5,22 @@ remain the detailed engineering reference.
 
 ## 1. Scaffolding
 
-- [ ] Create the root npm workspaces and shared TypeScript configuration.
-- [ ] Scaffold the React web application and NestJS API.
-- [ ] Create the shared contracts and Playwright workspaces.
-- [ ] Pin exact Node.js, npm, dependency, MySQL, Nginx, and container versions.
-- [ ] Configure Oxfmt, Oxlint, strict TypeScript, Jest, and Lefthook.
-- [ ] Add the MySQL connection, Dbmate migration plumbing, and API health check.
-- [ ] Add multi-stage Dockerfiles, Nginx routing, health checks, and
+- [x] Create the root npm workspaces and shared TypeScript configuration.
+- [x] Scaffold the React web application and NestJS API.
+- [x] Create the shared contracts and Playwright workspaces.
+- [x] Pin exact Node.js, npm, dependency, MySQL, Nginx, and container versions.
+- [x] Configure Oxfmt, Oxlint, strict TypeScript, Jest, and Lefthook.
+- [x] Add the MySQL connection, Dbmate migration plumbing, and API health check.
+- [x] Add multi-stage Dockerfiles, Nginx routing, health checks, and
       `compose.yml`.
-- [ ] Ensure a fresh clone starts with `docker compose up` without requiring an
+- [x] Ensure a fresh clone starts with `docker compose up` without requiring an
       `.env` file.
-- [ ] Add `.env.example` for optional overrides and production configuration.
-- [ ] Add the GitHub Actions CI foundation.
-- [ ] Exercise the selected Argon2id package and parameters in the final API
+- [x] Add `.env.example` for optional overrides and production configuration.
+- [x] Add the GitHub Actions CI foundation.
+- [x] Exercise the selected Argon2id package and parameters in the final API
       container.
-- [ ] Update the planning documents to remove the `.env` startup ambiguity.
-- [ ] Change the implementation plan and technical specification from `Draft`
+- [x] Update the planning documents to remove the `.env` startup ambiguity.
+- [x] Change the implementation plan and technical specification from `Draft`
       to `Ready` after their readiness checks pass.
 
 ## 2. Authentication

@@ -1,6 +1,6 @@
 # Product Implementation Plan
 
-> Status: Draft
+> Status: Ready
 
 ## Outcome
 
@@ -34,9 +34,7 @@ user behavior in this order:
 5. goal management; and
 6. submission hardening.
 
-Each slice ends with passing checks, an observable result, and a meaningful
-commit. Keep commits small enough to explain the development story without
-splitting one working behavior across unnecessary commits.
+Each slice ends with passing checks and an observable result.
 
 ## Document boundary
 
@@ -47,8 +45,7 @@ the technical specification takes precedence.
 
 Use the two documents together:
 
-- this plan owns product scope, experience, slices, acceptance criteria, and
-  suggested commit history; and
+- this plan owns product scope, experience, slices, and acceptance criteria; and
 - the technical specification owns precise persistence and transport contracts
   used while implementing those slices.
 
@@ -292,59 +289,59 @@ interpreted in the owner's timezone.
 
 ### `users`
 
-| Column | Purpose |
-| --- | --- |
-| `id` | Primary identifier. |
-| `email` | Normalized login email with a unique index. |
-| `password_hash` | Password hash only. |
-| `timezone` | Validated IANA timezone name. |
-| `created_at`, `updated_at` | UTC audit timestamps. |
+| Column                     | Purpose                                     |
+| -------------------------- | ------------------------------------------- |
+| `id`                       | Primary identifier.                         |
+| `email`                    | Normalized login email with a unique index. |
+| `password_hash`            | Password hash only.                         |
+| `timezone`                 | Validated IANA timezone name.               |
+| `created_at`, `updated_at` | UTC audit timestamps.                       |
 
 ### `habits`
 
-| Column | Purpose |
-| --- | --- |
-| `id` | Primary identifier. |
-| `user_id` | Owning user foreign key. |
-| `name` | Trimmed, user-visible habit name. |
-| `type` | Constrained to `build` or `break`. |
-| `start_date` | First eligible local calendar date. |
-| `created_at`, `updated_at` | UTC audit timestamps. |
+| Column                     | Purpose                             |
+| -------------------------- | ----------------------------------- |
+| `id`                       | Primary identifier.                 |
+| `user_id`                  | Owning user foreign key.            |
+| `name`                     | Trimmed, user-visible habit name.   |
+| `type`                     | Constrained to `build` or `break`.  |
+| `start_date`               | First eligible local calendar date. |
+| `created_at`, `updated_at` | UTC audit timestamps.               |
 
 Index `user_id` for owned lists. Habit deletion cascades to completions,
 relapses, and goals.
 
 ### `habit_completions`
 
-| Column | Purpose |
-| --- | --- |
-| `habit_id` | Build habit foreign key. |
+| Column            | Purpose                        |
+| ----------------- | ------------------------------ |
+| `habit_id`        | Build habit foreign key.       |
 | `completion_date` | Completed local calendar date. |
-| `created_at` | UTC audit timestamp. |
+| `created_at`      | UTC audit timestamp.           |
 
 Use `(habit_id, completion_date)` as the composite primary key and bounded-range
 lookup index.
 
 ### `habit_relapses`
 
-| Column | Purpose |
-| --- | --- |
-| `habit_id` | Break habit foreign key. |
+| Column         | Purpose                      |
+| -------------- | ---------------------------- |
+| `habit_id`     | Break habit foreign key.     |
 | `relapse_date` | Relapse local calendar date. |
-| `created_at` | UTC audit timestamp. |
+| `created_at`   | UTC audit timestamp.         |
 
 Use `(habit_id, relapse_date)` as the composite primary key and latest-relapse
 lookup index.
 
 ### `goals`
 
-| Column | Purpose |
-| --- | --- |
-| `id` | Primary identifier. |
-| `habit_id` | Linked habit foreign key and ownership path. |
-| `title` | Trimmed goal title. |
-| `description` | Optional trimmed description. |
-| `created_at`, `updated_at` | UTC audit timestamps. |
+| Column                     | Purpose                                      |
+| -------------------------- | -------------------------------------------- |
+| `id`                       | Primary identifier.                          |
+| `habit_id`                 | Linked habit foreign key and ownership path. |
+| `title`                    | Trimmed goal title.                          |
+| `description`              | Optional trimmed description.                |
+| `created_at`, `updated_at` | UTC audit timestamps.                        |
 
 Goal queries join through the owned habit. Avoid a duplicated `user_id` on the
 goal unless a demonstrated query need justifies maintaining the additional
@@ -358,23 +355,23 @@ error responses centrally.
 
 ### Authentication
 
-| Method and path | Behavior |
-| --- | --- |
+| Method and path       | Behavior                                                                                  |
+| --------------------- | ----------------------------------------------------------------------------------------- |
 | `POST /auth/register` | Create a user, set the authentication cookie, and return the current-user representation. |
-| `POST /auth/login` | Validate credentials, set the cookie, and return the current user. |
-| `POST /auth/logout` | Clear the cookie and return a no-content response. |
-| `GET /auth/me` | Return the authenticated user or an unauthorized response. |
+| `POST /auth/login`    | Validate credentials, set the cookie, and return the current user.                        |
+| `POST /auth/logout`   | Clear the cookie and return a no-content response.                                        |
+| `GET /auth/me`        | Return the authenticated user or an unauthorized response.                                |
 
 Registration accepts email, password, and timezone. Login accepts email and
 password. Responses never include the password hash or signed token.
 
 ### Habits and dashboard state
 
-| Method and path | Behavior |
-| --- | --- |
+| Method and path                     | Behavior                                                                              |
+| ----------------------------------- | ------------------------------------------------------------------------------------- |
 | `GET /habits?week_start=YYYY-MM-DD` | Return owned habits enriched with tracking state for the requested Monday-based week. |
-| `POST /habits` | Create a daily build or break habit starting today. |
-| `DELETE /habits/:habit_id` | Delete an owned habit and its dependent data. |
+| `POST /habits`                      | Create a daily build or break habit starting today.                                   |
+| `DELETE /habits/:habit_id`          | Delete an owned habit and its dependent data.                                         |
 
 The enriched habit representation contains common identity fields and a
 type-specific tracking object. A build tracking object contains current streak,
@@ -386,9 +383,9 @@ break habit as having completion-day state.
 
 ### Build tracking
 
-| Method and path | Behavior |
-| --- | --- |
-| `PUT /habits/:habit_id/completions/:date` | Ensure an eligible date is complete. |
+| Method and path                              | Behavior                               |
+| -------------------------------------------- | -------------------------------------- |
+| `PUT /habits/:habit_id/completions/:date`    | Ensure an eligible date is complete.   |
 | `DELETE /habits/:habit_id/completions/:date` | Ensure an eligible date is incomplete. |
 
 Both operations return the recalculated build tracking representation needed to
@@ -396,8 +393,8 @@ update or invalidate the owning habit query.
 
 ### Break tracking
 
-| Method and path | Behavior |
-| --- | --- |
+| Method and path                   | Behavior                                                             |
+| --------------------------------- | -------------------------------------------------------------------- |
 | `POST /habits/:habit_id/relapses` | Record today's relapse and return recalculated break tracking state. |
 
 The server derives today's calendar date from the authenticated user's timezone
@@ -405,12 +402,12 @@ rather than accepting a trusted client date.
 
 ### Goals
 
-| Method and path | Behavior |
-| --- | --- |
-| `GET /goals` | Return goals linked to the user's owned habits. |
-| `POST /goals` | Create a goal linked to an owned habit. |
-| `PATCH /goals/:goal_id` | Update the title, description, or linked owned habit. |
-| `DELETE /goals/:goal_id` | Delete an owned goal. |
+| Method and path          | Behavior                                              |
+| ------------------------ | ----------------------------------------------------- |
+| `GET /goals`             | Return goals linked to the user's owned habits.       |
+| `POST /goals`            | Create a goal linked to an owned habit.               |
+| `PATCH /goals/:goal_id`  | Update the title, description, or linked owned habit. |
+| `DELETE /goals/:goal_id` | Delete an owned goal.                                 |
 
 ### Error behavior
 
@@ -450,18 +447,13 @@ Work:
 Acceptance criteria:
 
 - `npm ci`, formatting check, lint, type-check, unit tests, and builds pass.
-- `docker compose up --build` starts MySQL, migrations, API, and web without a
-  locally installed Node.js or MySQL runtime.
+- `docker compose up` from a fresh clone builds and starts MySQL, migrations,
+  API, and web without a locally installed Node.js or MySQL runtime or a
+  required `.env` file. `docker compose up --build` remains the documented
+  rebuild command after source changes.
 - The browser entrypoint renders the application shell.
 - A web request to `/api/health` succeeds through Nginx.
 - Final runtime containers do not contain development source or run as root.
-
-Suggested commits:
-
-- `chore: initialize npm workspaces`
-- `chore: scaffold application foundations`
-- `chore: add compose application skeleton`
-- `ci: add repository validation workflow`
 
 ### Slice 2: Authentication
 
@@ -494,11 +486,6 @@ Primary tests:
 - Component tests for form validation, pending, error, and success behavior.
 - One Playwright registration and login journey.
 
-Suggested commits:
-
-- `feat: add authentication api`
-- `feat: add registration and login experience`
-
 ### Slice 3: Habits and dashboard
 
 **Outcome:** an authenticated user can create build or break habits and see only
@@ -527,11 +514,6 @@ Primary tests:
 - Use-case tests for ownership and input decisions.
 - MySQL/API tests for persistence, user scoping, and deletion.
 - Component tests for the empty state, creation, grouping, and deletion flow.
-
-Suggested commits:
-
-- `feat: add owned habit management api`
-- `feat: add daily habit dashboard`
 
 ### Slice 4: Build-habit tracking
 
@@ -567,11 +549,6 @@ Primary tests:
 - Network-aware component tests for mutation, failure, and query refresh.
 - One Playwright journey that creates and completes a build habit.
 
-Suggested commits:
-
-- `feat: add build habit tracking rules`
-- `feat: add weekly build habit experience`
-
 ### Slice 5: Break-habit tracking
 
 **Outcome:** a user sees the clean streak for a break habit and can record a
@@ -603,11 +580,6 @@ Primary tests:
 - Component tests for confirmation, cancellation, pending, success, and error.
 - One Playwright journey that records a relapse and observes the reset.
 
-Suggested commits:
-
-- `feat: add break habit relapse tracking`
-- `feat: add clean streak experience`
-
 ### Slice 6: Goal management
 
 **Outcome:** a user can manage simple goals linked to their habits.
@@ -635,11 +607,6 @@ Primary tests:
   attempts.
 - Component tests for form validation, editing, deletion, and query states.
 - One Playwright create/edit/delete goal journey.
-
-Suggested commits:
-
-- `feat: add linked goal management api`
-- `feat: add goal management experience`
 
 ### Slice 7: Hardening and submission
 
@@ -674,12 +641,6 @@ Acceptance criteria:
 - README commands work when copied exactly.
 - `.env.example` contains placeholders only and no real secret is committed.
 
-Suggested commits:
-
-- `test: cover critical compose journeys`
-- `fix: harden accessibility and application security`
-- `docs: add setup and submission guide`
-
 ## Cross-cutting implementation rules
 
 - Use shared contracts at HTTP boundaries without putting persistence or UI
@@ -705,8 +666,8 @@ Suggested commits:
 
 The MVP is complete when a new reviewer can:
 
-1. clone the repository and configure placeholders from `.env.example`;
-2. run one documented Docker Compose command;
+1. clone the repository without creating a local `.env` file;
+2. run `docker compose up` from the repository root;
 3. register and log in;
 4. create a build habit and mark an eligible date complete;
 5. observe a correct streak and current-week missed/completion result;

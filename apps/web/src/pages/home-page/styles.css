@@ -1,0 +1,75 @@
+@layer components {
+  .app-shell {
+    min-height: 100vh;
+  }
+
+  .app-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: min(100% - 2rem, var(--content-width));
+    margin-inline: auto;
+    border-bottom: 1px solid var(--color-border);
+    padding-block: var(--space-4);
+  }
+
+  .brand {
+    color: var(--color-text);
+    font-size: var(--font-size-lg);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    text-decoration: none;
+  }
+
+  .phase-label {
+    border: 1px solid var(--color-border-strong);
+    padding: var(--space-1) var(--space-2);
+    color: var(--color-text-muted);
+    font-size: var(--font-size-xs);
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .home-page {
+    display: grid;
+    min-height: calc(100vh - 5rem);
+    place-items: center;
+    width: min(100% - 2rem, var(--content-width));
+    margin-inline: auto;
+    padding-block: var(--space-8);
+  }
+
+  .hero {
+    width: min(100%, 46rem);
+    border-left: 0.4rem solid var(--color-accent);
+    padding: clamp(var(--space-5), 6vw, var(--space-9));
+    background: var(--color-surface);
+    box-shadow: var(--shadow-panel);
+  }
+
+  .hero h1 {
+    max-width: 14ch;
+    margin: var(--space-2) 0 var(--space-4);
+    font-size: clamp(2.25rem, 8vw, 4.75rem);
+    letter-spacing: -0.06em;
+    line-height: 0.98;
+  }
+
+  .eyebrow {
+    margin: 0;
+    color: var(--color-accent-strong);
+    font-size: var(--font-size-sm);
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .hero-copy {
+    max-width: 58ch;
+    margin: 0 0 var(--space-5);
+    color: var(--color-text-muted);
+    font-size: var(--font-size-lg);
+    line-height: 1.6;
+  }
+}

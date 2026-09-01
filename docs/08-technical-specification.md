@@ -1,6 +1,6 @@
 # Technical Specification
 
-> Status: Draft
+> Status: Ready
 
 ## Purpose
 
@@ -10,9 +10,9 @@ behavior, authentication mechanism, calendar algorithms, ownership rules,
 idempotency guarantees, and transaction boundaries.
 
 The [Product Implementation Plan](./07-implementation-plan.md) remains the
-source of truth for product scope, user experience, delivery order, acceptance
-criteria, and suggested commits. Repository-wide code, tooling, styling, CI,
-and testing conventions remain in their existing documents.
+source of truth for product scope, user experience, delivery order, and
+acceptance criteria. Repository-wide code, tooling, styling, CI, and testing
+conventions remain in their existing documents.
 
 ## Status lifecycle
 
@@ -151,14 +151,14 @@ timestamps, but the table and constraint behavior must match this section.
 
 ### `users`
 
-| Column | MySQL definition | Notes |
-| --- | --- | --- |
-| `id` | `BINARY(16) NOT NULL` | UUID v4 primary key stored as 128 bits. |
-| `email` | `VARCHAR(254) NOT NULL` | Trimmed and lowercased before storage. |
-| `password_hash` | `VARCHAR(255) NOT NULL` | Encoded Argon2id hash only. |
-| `timezone` | `VARCHAR(64) CHARACTER SET ascii COLLATE ascii_bin NOT NULL` | Validated IANA timezone name. |
-| `created_at` | `DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3)` | UTC. |
-| `updated_at` | `DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3)` | UTC. |
+| Column          | MySQL definition                                                                   | Notes                                   |
+| --------------- | ---------------------------------------------------------------------------------- | --------------------------------------- |
+| `id`            | `BINARY(16) NOT NULL`                                                              | UUID v4 primary key stored as 128 bits. |
+| `email`         | `VARCHAR(254) NOT NULL`                                                            | Trimmed and lowercased before storage.  |
+| `password_hash` | `VARCHAR(255) NOT NULL`                                                            | Encoded Argon2id hash only.             |
+| `timezone`      | `VARCHAR(64) CHARACTER SET ascii COLLATE ascii_bin NOT NULL`                       | Validated IANA timezone name.           |
+| `created_at`    | `DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3)`                                | UTC.                                    |
+| `updated_at`    | `DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3)` | UTC.                                    |
 
 Constraints and indexes:
 
@@ -174,15 +174,15 @@ differences.
 
 ### `habits`
 
-| Column | MySQL definition | Notes |
-| --- | --- | --- |
-| `id` | `BINARY(16) NOT NULL` | UUID v4 primary key stored as 128 bits. |
-| `user_id` | `BINARY(16) NOT NULL` | Owning user UUID. |
-| `name` | `VARCHAR(100) NOT NULL` | Trimmed, non-empty name. |
-| `type` | `ENUM('build', 'break') NOT NULL` | Immutable after creation. |
-| `start_date` | `DATE NOT NULL` | User-local date assigned by the server. |
-| `created_at` | `DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3)` | UTC. |
-| `updated_at` | `DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3)` | UTC. |
+| Column       | MySQL definition                                                                   | Notes                                   |
+| ------------ | ---------------------------------------------------------------------------------- | --------------------------------------- |
+| `id`         | `BINARY(16) NOT NULL`                                                              | UUID v4 primary key stored as 128 bits. |
+| `user_id`    | `BINARY(16) NOT NULL`                                                              | Owning user UUID.                       |
+| `name`       | `VARCHAR(100) NOT NULL`                                                            | Trimmed, non-empty name.                |
+| `type`       | `ENUM('build', 'break') NOT NULL`                                                  | Immutable after creation.               |
+| `start_date` | `DATE NOT NULL`                                                                    | User-local date assigned by the server. |
+| `created_at` | `DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3)`                                | UTC.                                    |
+| `updated_at` | `DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3)` | UTC.                                    |
 
 Constraints and indexes:
 
@@ -199,11 +199,11 @@ because changing them would reinterpret existing event history.
 
 ### `habit_completions`
 
-| Column | MySQL definition | Notes |
-| --- | --- | --- |
-| `habit_id` | `BINARY(16) NOT NULL` | Parent build-habit UUID. |
-| `completion_date` | `DATE NOT NULL` | User-local completed day. |
-| `created_at` | `DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3)` | UTC event creation time. |
+| Column            | MySQL definition                                    | Notes                     |
+| ----------------- | --------------------------------------------------- | ------------------------- |
+| `habit_id`        | `BINARY(16) NOT NULL`                               | Parent build-habit UUID.  |
+| `completion_date` | `DATE NOT NULL`                                     | User-local completed day. |
+| `created_at`      | `DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3)` | UTC event creation time.  |
 
 Constraints and indexes:
 
@@ -223,11 +223,11 @@ deleting a completion.
 
 ### `habit_relapses`
 
-| Column | MySQL definition | Notes |
-| --- | --- | --- |
-| `habit_id` | `BINARY(16) NOT NULL` | Parent break-habit UUID. |
-| `relapse_date` | `DATE NOT NULL` | User-local relapse day. |
-| `created_at` | `DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3)` | UTC event creation time. |
+| Column         | MySQL definition                                    | Notes                    |
+| -------------- | --------------------------------------------------- | ------------------------ |
+| `habit_id`     | `BINARY(16) NOT NULL`                               | Parent break-habit UUID. |
+| `relapse_date` | `DATE NOT NULL`                                     | User-local relapse day.  |
+| `created_at`   | `DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3)` | UTC event creation time. |
 
 Constraints and indexes:
 
@@ -243,14 +243,14 @@ today's relapse only, so it does not accept a client-controlled relapse date.
 
 ### `goals`
 
-| Column | MySQL definition | Notes |
-| --- | --- | --- |
-| `id` | `BINARY(16) NOT NULL` | UUID v4 primary key stored as 128 bits. |
-| `habit_id` | `BINARY(16) NOT NULL` | Required linked-habit UUID and ownership path. |
-| `title` | `VARCHAR(120) NOT NULL` | Trimmed, non-empty title. |
-| `description` | `VARCHAR(500) NULL` | Trimmed; blank input becomes `NULL`. |
-| `created_at` | `DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3)` | UTC. |
-| `updated_at` | `DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3)` | UTC. |
+| Column        | MySQL definition                                                                   | Notes                                          |
+| ------------- | ---------------------------------------------------------------------------------- | ---------------------------------------------- |
+| `id`          | `BINARY(16) NOT NULL`                                                              | UUID v4 primary key stored as 128 bits.        |
+| `habit_id`    | `BINARY(16) NOT NULL`                                                              | Required linked-habit UUID and ownership path. |
+| `title`       | `VARCHAR(120) NOT NULL`                                                            | Trimmed, non-empty title.                      |
+| `description` | `VARCHAR(500) NULL`                                                                | Trimmed; blank input becomes `NULL`.           |
+| `created_at`  | `DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3)`                                | UTC.                                           |
+| `updated_at`  | `DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3)` | UTC.                                           |
 
 Constraints and indexes:
 
@@ -469,16 +469,18 @@ aliases.
 
 - Registration passwords contain between 8 and 128 Unicode characters.
 - Passwords are not trimmed or otherwise normalized.
-- Hash with Argon2id using a maintained Node.js implementation.
+- Hash with Argon2id using the pinned `argon2` Node.js package.
 - Configure a 16-byte random salt, 32-byte hash, 19,456 KiB memory cost, two
   iterations, and one lane as the initial development parameters.
 - Keep the parameters encoded in the stored hash so they can be upgraded later.
 - Compare hashes through the library's verification function.
 - Never log password values, password hashes, authentication cookies, or JWTs.
 
-The selected parameters must be exercised inside the final API container before
-marking this document Ready. If the measured resource cost requires adjustment,
-record the changed values here rather than silently changing code defaults.
+The selected parameters were exercised with `argon2` 0.45.1 inside the final
+Node.js 24.20.0 API container during scaffolding. Hash-and-verify completed in
+66 ms on the development machine. If later deployment measurements require an
+adjustment, record the changed values here rather than silently changing code
+defaults.
 
 ### Signed token
 
@@ -491,20 +493,21 @@ Use one JWT access token with:
 - issued-at (`iat`): token issue time; and
 - expiration (`exp`): seven days after issue.
 
-`JWT_SECRET` is required, must contain at least 32 bytes of unpredictable value,
-and must not use the placeholder committed in `.env.example`. Token verification
+`JWT_SECRET` is always required and must contain at least 32 bytes of
+unpredictable value. Compose supplies a local-only default for one-command
+development startup; production deployments must override it. Token verification
 pins the expected algorithm, issuer, and audience.
 
 ### Cookie
 
-| Attribute | Value |
-| --- | --- |
-| Name | `hs_session` |
-| `HttpOnly` | `true` |
-| `SameSite` | `Lax` |
-| `Path` | `/` |
-| `Max-Age` | Seven days, matching the token lifetime |
-| `Secure` | Controlled by validated `COOKIE_SECURE`; `false` for documented local HTTP Compose and `true` for HTTPS deployment |
+| Attribute  | Value                                                                                                              |
+| ---------- | ------------------------------------------------------------------------------------------------------------------ |
+| Name       | `hs_session`                                                                                                       |
+| `HttpOnly` | `true`                                                                                                             |
+| `SameSite` | `Lax`                                                                                                              |
+| `Path`     | `/`                                                                                                                |
+| `Max-Age`  | Seven days, matching the token lifetime                                                                            |
+| `Secure`   | Controlled by validated `COOKIE_SECURE`; `false` for documented local HTTP Compose and `true` for HTTPS deployment |
 
 The frontend sends same-origin credentials through the centralized API client.
 The token is never exposed to JavaScript or stored in local storage.
@@ -848,14 +851,14 @@ type ErrorResponse = {
 
 Status mapping:
 
-| Status | Codes |
-| --- | --- |
-| `400 Bad Request` | `VALIDATION_ERROR` |
-| `401 Unauthorized` | `AUTHENTICATION_REQUIRED`, `INVALID_CREDENTIALS` |
-| `404 Not Found` | `RESOURCE_NOT_FOUND` |
-| `409 Conflict` | `EMAIL_ALREADY_EXISTS`, `INVALID_HABIT_TYPE_OPERATION`, `DATE_NOT_ELIGIBLE` |
-| `429 Too Many Requests` | `RATE_LIMITED` |
-| `500 Internal Server Error` | `INTERNAL_ERROR` |
+| Status                      | Codes                                                                       |
+| --------------------------- | --------------------------------------------------------------------------- |
+| `400 Bad Request`           | `VALIDATION_ERROR`                                                          |
+| `401 Unauthorized`          | `AUTHENTICATION_REQUIRED`, `INVALID_CREDENTIALS`                            |
+| `404 Not Found`             | `RESOURCE_NOT_FOUND`                                                        |
+| `409 Conflict`              | `EMAIL_ALREADY_EXISTS`, `INVALID_HABIT_TYPE_OPERATION`, `DATE_NOT_ELIGIBLE` |
+| `429 Too Many Requests`     | `RATE_LIMITED`                                                              |
+| `500 Internal Server Error` | `INTERNAL_ERROR`                                                            |
 
 Example validation failure:
 
@@ -1044,20 +1047,19 @@ from the same query.
 
 The API validates required environment values at startup:
 
-| Variable | Purpose |
-| --- | --- |
-| `NODE_ENV` | Runtime mode used for secure defaults. |
-| `PORT` | Internal API listening port. |
-| `DATABASE_URL` | MySQL connection used by the API. |
-| `JWT_SECRET` | Token-signing secret of at least 32 bytes. |
-| `COOKIE_SECURE` | Explicit boolean controlling the cookie `Secure` flag. |
-| `WEB_ORIGIN` | Expected same-origin public application URL for deployment checks. |
+| Variable        | Purpose                                                            |
+| --------------- | ------------------------------------------------------------------ |
+| `NODE_ENV`      | Explicit runtime mode.                                             |
+| `PORT`          | Internal API listening port.                                       |
+| `DATABASE_URL`  | MySQL connection used by the API.                                  |
+| `JWT_SECRET`    | Token-signing secret of at least 32 bytes.                         |
+| `COOKIE_SECURE` | Explicit boolean controlling the cookie `Secure` flag.             |
+| `WEB_ORIGIN`    | Expected same-origin public application URL for deployment checks. |
 
 The migration service receives its own `DATABASE_URL` using the same database
 credentials or a deliberately scoped migration credential. `.env.example`
-contains non-secret placeholders and documented local defaults. Compose may
-provide safe development values, but production-mode startup rejects a known
-placeholder JWT secret.
+contains only the non-secret placeholders required by the deployment Compose
+file. Local Compose supplies its development values directly.
 
 ## Observability and security behavior
 

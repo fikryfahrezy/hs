@@ -24,7 +24,8 @@ Additional rules:
 - Commit the root `package-lock.json`.
 - Use `npm ci` in CI and Docker builds.
 - Declare an exact npm version in the root `packageManager` field.
-- Pin the selected Node.js 24 LTS patch consistently in `.nvmrc` and Docker.
+- Pin Node.js 24.20.0 consistently in `.nvmrc` and Docker.
+- Pin npm 11.19.0 in the root `packageManager` field.
 - Upgrade dependencies intentionally in focused commits with validation results.
 - Do not maintain nested lockfiles inside workspaces.
 
@@ -69,7 +70,7 @@ supported repository files through root scripts.
 - Keep strict TypeScript compiler settings enabled.
 - Treat linting and type-checking as separate gates; Oxlint does not replace
   `tsc`.
-- Run both gates in CI and before pushing through Lefthook.
+- Run both gates in CI and before committing through Lefthook.
 
 ## Docker base-image policy
 
@@ -82,7 +83,7 @@ Image rules:
 
 - Select an official stable Debian or Ubuntu variant during scaffolding.
 - Pin image tags to an explicit runtime/release version; never use `latest`.
-- Use the same Node.js 24 LTS patch in web, API, and migration build stages.
+- Use Node.js 24.20.0 in web, API, and migration build stages.
 - Use slim runtime variants when they provide all required shared libraries.
 - Use multi-stage builds so compilers and development dependencies do not enter
   final runtime images.

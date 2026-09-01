@@ -28,12 +28,12 @@ boundary or protects a different risk.
 
 ## Test levels
 
-| Level | Runtime boundary | Primary responsibility |
-| --- | --- | --- |
-| Frontend unit/component | Jest and JSDOM; no real API | Pure frontend logic, UI behavior, forms, hooks, and query states |
-| Backend unit | Jest and plain TypeScript; no Nest application, network, or database | Domain rules and application-use-case orchestration |
-| Backend integration | Jest/Supertest, bootstrapped NestJS where needed, and real MySQL | Raw SQL, migrations, persistence, HTTP contracts, authentication, and ownership |
-| End-to-end | Playwright against the full Compose stack through Nginx | A few critical user journeys and assembled-system behavior |
+| Level                   | Runtime boundary                                                     | Primary responsibility                                                          |
+| ----------------------- | -------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
+| Frontend unit/component | Jest and JSDOM; no real API                                          | Pure frontend logic, UI behavior, forms, hooks, and query states                |
+| Backend unit            | Jest and plain TypeScript; no Nest application, network, or database | Domain rules and application-use-case orchestration                             |
+| Backend integration     | Jest/Supertest, bootstrapped NestJS where needed, and real MySQL     | Raw SQL, migrations, persistence, HTTP contracts, authentication, and ownership |
+| End-to-end              | Playwright against the full Compose stack through Nginx              | A few critical user journeys and assembled-system behavior                      |
 
 Frontend tests that render real application providers or use Mock Service
 Worker still belong to the frontend Jest suite. Creating a separate command
@@ -334,16 +334,16 @@ not depend on execution order or records created by another test.
 
 ## Coverage by behavior
 
-| Behavior | Frontend | Backend unit | Backend integration | E2E |
-| --- | --- | --- | --- | --- |
-| Form interaction and visible validation | Primary | Not applicable | Selected request-validation cases | Happy path |
-| Streak calculation | Display only | Exhaustive business scenarios | Persistence boundary | One representative journey |
-| Weekly missed days | Display only | Exhaustive business scenarios | Selected date persistence | Optional representative journey |
-| Relapse reset | Display and mutation state | Exhaustive business scenarios | Persisted reset | One representative journey |
-| Habit and goal persistence | Query and mutation states | Use-case decisions | Primary | Indirect confirmation |
-| Authentication | Forms and authenticated states | Token/use-case decisions | HTTP and security boundary | Primary journey |
-| Cross-user ownership | Not duplicated in UI | Authorization decision | Required | Optional |
-| Shared response contracts | API-adapter parsing | Producer mapping where relevant | Real HTTP response | Indirect confirmation |
+| Behavior                                | Frontend                       | Backend unit                    | Backend integration               | E2E                             |
+| --------------------------------------- | ------------------------------ | ------------------------------- | --------------------------------- | ------------------------------- |
+| Form interaction and visible validation | Primary                        | Not applicable                  | Selected request-validation cases | Happy path                      |
+| Streak calculation                      | Display only                   | Exhaustive business scenarios   | Persistence boundary              | One representative journey      |
+| Weekly missed days                      | Display only                   | Exhaustive business scenarios   | Selected date persistence         | Optional representative journey |
+| Relapse reset                           | Display and mutation state     | Exhaustive business scenarios   | Persisted reset                   | One representative journey      |
+| Habit and goal persistence              | Query and mutation states      | Use-case decisions              | Primary                           | Indirect confirmation           |
+| Authentication                          | Forms and authenticated states | Token/use-case decisions        | HTTP and security boundary        | Primary journey                 |
+| Cross-user ownership                    | Not duplicated in UI           | Authorization decision          | Required                          | Optional                        |
+| Shared response contracts               | API-adapter parsing            | Producer mapping where relevant | Real HTTP response                | Indirect confirmation           |
 
 This matrix is a responsibility guide, not a checklist requiring every behavior
 to appear at every level.
@@ -352,17 +352,17 @@ to appear at every level.
 
 Expose distinct root commands so failures identify the affected boundary:
 
-| Command | Responsibility |
-| --- | --- |
-| `npm run test:web` | Run frontend Jest and React Testing Library tests. |
-| `npm run test:api:unit` | Run infrastructure-free API Jest tests. |
-| `npm run test:api:integration` | Run API and repository integration tests against migrated MySQL. |
-| `npm run test:e2e` | Run Playwright against the Compose stack. |
-| `npm test` | Run the fast frontend, contracts when applicable, and API unit suites. |
+| Command                        | Responsibility                                                         |
+| ------------------------------ | ---------------------------------------------------------------------- |
+| `npm run test:web`             | Run frontend Jest and React Testing Library tests.                     |
+| `npm run test:api:unit`        | Run infrastructure-free API Jest tests.                                |
+| `npm run test:api:integration` | Run API and repository integration tests against migrated MySQL.       |
+| `npm run test:e2e`             | Run Playwright against the Compose stack.                              |
+| `npm test`                     | Run the fast frontend, contracts when applicable, and API unit suites. |
 
-The pre-push hook runs type-checking and `npm test`. Database integration and
-E2E remain in their explicit commands because they require infrastructure and
-are slower. CI runs all applicable levels according to
+Git hooks do not run tests because they can slow down routine commits. Unit,
+integration, and E2E suites remain explicit commands, while CI runs all
+applicable levels according to
 [Continuous integration](./05-continuous-integration.md).
 
 ## Coverage policy

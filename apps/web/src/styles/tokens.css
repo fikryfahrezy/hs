@@ -1,0 +1,25 @@
+:root {
+  --neutral-0: #ffffff;
+  --neutral-50: #f6f7f2;
+  --neutral-200: #d7dacf;
+  --neutral-500: #656b61;
+  --neutral-800: #242823;
+  --neutral-950: #111310;
+  --green-500: #357a57;
+  --green-700: #1d5a3c;
+  --red-600: #a53d35;
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-8: 3rem;
+  --space-9: 4rem;
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.875rem;
+  --font-size-lg: 1.125rem;
+  --radius-control: 0.125rem;
+  --content-width: 72rem;
+  --shadow-panel: 0 1.25rem 4rem rgb(17 19 16 / 10%);
+}

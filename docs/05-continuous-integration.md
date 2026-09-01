@@ -19,10 +19,9 @@ Use one `.github/workflows/ci.yml` workflow containing separate logical jobs:
 
 ```text
                   ┌─ frontend ─┐
-changes ──────────┤            ├─ e2e ─┐
-                  └─ backend ──┘       │
-quality ───────────────────────────────┼─ ci gate
-changes ───────────────────────────────┘
+changes ──────────┤            ├─ e2e
+                  └─ backend ──┘   │
+quality ───────────────────────────┘
 ```
 
 The jobs are:
@@ -32,12 +31,10 @@ The jobs are:
 3. `frontend`: validate the web application when affected.
 4. `backend`: validate the API and MySQL integration when affected.
 5. `e2e`: validate the complete Compose stack when affected.
-6. `ci`: aggregate every result into one stable required check.
 
 Do not create independent path-filtered frontend, backend, and E2E workflows.
-GitHub can leave a required workflow pending when it is skipped by a path
-filter. Conditional jobs inside an always-triggered workflow allow irrelevant
-lanes to be skipped while the final required check still completes.
+Conditional jobs inside an always-triggered workflow keep CI centralized while
+allowing irrelevant application lanes to be skipped.
 
 ## Events and concurrency
 
@@ -57,14 +54,13 @@ request. Default-branch runs must not cancel unrelated runs.
 Set explicit job timeouts so infrastructure failures cannot consume runner time
 indefinitely. Suggested starting limits:
 
-| Job | Timeout |
-| --- | --- |
-| `changes` | 5 minutes |
-| `quality` | 10 minutes |
+| Job        | Timeout    |
+| ---------- | ---------- |
+| `changes`  | 5 minutes  |
+| `quality`  | 10 minutes |
 | `frontend` | 15 minutes |
-| `backend` | 20 minutes |
-| `e2e` | 30 minutes |
-| `ci` | 5 minutes |
+| `backend`  | 20 minutes |
+| `e2e`      | 30 minutes |
 
 ## Permissions and pinning
 
@@ -152,6 +148,7 @@ tests/e2e/**
 db/**
 infra/**
 compose.yml
+compose.deploy.yml
 **/Dockerfile
 .dockerignore
 .env.example
@@ -237,42 +234,6 @@ Use the Compose configuration itself rather than manually starting separate web
 and API development servers. This validates image builds, migration ordering,
 Nginx routing, API health, MySQL connectivity, and browser behavior together.
 
-## CI gate
-
-The `ci` job has no checkout, dependency installation, build, or tests. It runs
-with `if: always()`, depends on every preceding job, and converts their results
-into one stable branch-protection check.
-
-```yaml
-ci:
-  name: CI gate
-  runs-on: ubuntu-24.04
-  if: always()
-  needs:
-    - changes
-    - quality
-    - frontend
-    - backend
-    - e2e
-
-  steps:
-    - name: Fail when a required job failed
-      if: |
-        contains(needs.*.result, 'failure') ||
-        contains(needs.*.result, 'cancelled')
-      run: exit 1
-
-    - name: Report success
-      run: echo "All required CI checks passed or were not applicable."
-```
-
-The gate accepts `success` and intentional `skipped` results. It fails for
-`failure` or `cancelled`. Include `changes` in `needs`; otherwise failed change
-detection could skip every conditional job and incorrectly produce a green gate.
-
-Configure branch protection to require only the stable `CI / CI gate` check, not
-the conditional frontend, backend, or E2E jobs.
-
 ## Artifact and cache policy
 
 Do not use GitHub Actions artifact storage:
@@ -316,7 +277,6 @@ artifact-upload concern.
 
 ## Acceptance criteria
 
-- Pull requests always receive the stable CI gate check.
 - Documentation-only changes run quality checks without starting application or
   E2E jobs.
 - Frontend-only changes run frontend and E2E checks.
@@ -324,8 +284,6 @@ artifact-upload concern.
 - Shared contract and root dependency changes run both application jobs and E2E.
 - Backend integration tests apply migrations to real MySQL.
 - E2E starts the complete Compose stack and always tears it down.
-- A failed or cancelled required job makes the CI gate fail.
-- An intentionally skipped application job does not make the gate fail.
 - All runners use `ubuntu-24.04` and repository-pinned Node/npm versions.
 - All referenced actions use full immutable commit SHAs.
 - The workflow uploads no artifacts, publishes no images, and performs no

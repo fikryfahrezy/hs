@@ -1,0 +1,15 @@
+@layer components {
+  .health-status {
+    margin: 0;
+    color: var(--color-text-muted);
+    font-size: var(--font-size-sm);
+  }
+
+  .health-status[data-state="ready"] {
+    color: var(--color-positive);
+  }
+
+  .health-status[data-state="error"] {
+    color: var(--color-danger);
+  }
+}
