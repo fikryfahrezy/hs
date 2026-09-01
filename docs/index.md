@@ -7,3 +7,4 @@
 3. [Code organization](./03-code-organization.md)
 4. [Styling conventions](./04-styling-conventions.md)
 5. [Continuous integration](./05-continuous-integration.md)
+6. [Testing strategy](./06-testing-strategy.md)

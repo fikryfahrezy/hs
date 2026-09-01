@@ -113,6 +113,7 @@ Development dependencies:
 - Babel presets for environment, React, and TypeScript transformation
 - `@testing-library/react`, `@testing-library/jest-dom`, and
   `@testing-library/user-event`
+- `msw` for selected API-adapter and network-aware feature tests
 
 Jest does not consume Vite's plugin pipeline. Keep `jest.config` and the Jest
 Babel transform explicit, map styles/assets, and avoid reading `import.meta.env`
@@ -176,6 +177,9 @@ It must not import NestJS, React, database code, or domain services.
 Keep browser tests out of the web workspace so component tests and end-to-end
 tests have distinct responsibilities and commands.
 
+The responsibilities, isolation boundaries, fixture rules, and initial test
+scope are defined in [Testing strategy](./06-testing-strategy.md).
+
 ## Root command contract
 
 The root `package.json` should provide a predictable interface:
@@ -189,7 +193,10 @@ The root `package.json` should provide a predictable interface:
 | `npm run lint:fix` | Apply safe Oxlint fixes. |
 | `npm run format` | Apply Oxfmt. |
 | `npm run format:check` | Verify formatting without modifying files. |
-| `npm test` | Run Jest suites in workspaces that provide a test script. |
+| `npm run test:web` | Run frontend Jest and React Testing Library tests. |
+| `npm run test:api:unit` | Run infrastructure-free API Jest tests. |
+| `npm run test:api:integration` | Run API and repository integration tests against migrated MySQL. |
+| `npm test` | Run fast frontend, contracts when applicable, and API unit suites. |
 | `npm run test:e2e` | Run Playwright tests. |
 | `npm run db:new -- <name>` | Create a timestamped SQL migration with Dbmate. |
 | `npm run db:migrate` | Wait for MySQL and apply pending migrations. |

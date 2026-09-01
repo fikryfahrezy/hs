@@ -10,6 +10,35 @@ such as `controllers`, `services`, or `repositories` that mix unrelated domains.
 Shared code must be genuinely domain-independent. Do not move code into a shared
 folder merely because two files currently look similar.
 
+## Naming conventions
+
+Use lowercase kebab-case for directories and ordinary filename stems in both
+applications. Dots may separate conventional roles such as `.controller`,
+`.module`, `.provider`, `.repository`, `.test`, and `.spec`.
+
+Examples:
+
+```text
+habit-card/
+habit-query-keys.ts
+use-habits.ts
+create-habit.ts
+weekly-completion.repository.ts
+habits.controller.ts
+calculate-streak.test.ts
+tracking.integration.test.ts
+```
+
+React components and pages are the deliberate entrypoint convention: put the
+unit in a named kebab-case directory and use `index.tsx`, `index.test.tsx`, and
+`styles.css` inside it. TypeScript component symbols still use PascalCase, while
+functions and values use camelCase. Do not use PascalCase filenames such as
+`HabitCard.tsx`.
+
+Repository-standard and tool-mandated filenames such as `Dockerfile`,
+`README.md`, `package.json`, timestamped migrations, and framework configuration
+files are exceptions when their ecosystem defines the name.
+
 ## Frontend structure
 
 ```text
@@ -397,7 +426,8 @@ REST client now / GraphQL client later
 
 Tests remain near the unit they verify. Tests that require a bootstrapped API or
 real MySQL instance belong in the API integration-test area rather than inside a
-feature's unit-test files.
+feature's unit-test files. Test levels, fixtures, naming suffixes, and database
+isolation are defined in [Testing strategy](./06-testing-strategy.md).
 
 ## Shared contracts structure
 

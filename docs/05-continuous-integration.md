@@ -9,6 +9,10 @@ builds from the repository when deployment is introduced.
 The CI workflow does not publish images, push packages, call deployment hooks,
 or store deployment credentials.
 
+Test responsibilities and isolation boundaries are defined in
+[Testing strategy](./06-testing-strategy.md); this document defines when and how
+those suites run in CI.
+
 ## Workflow shape
 
 Use one `.github/workflows/ci.yml` workflow containing separate logical jobs:
@@ -326,4 +330,3 @@ artifact-upload concern.
 - All referenced actions use full immutable commit SHAs.
 - The workflow uploads no artifacts, publishes no images, and performs no
   deployment.
-
