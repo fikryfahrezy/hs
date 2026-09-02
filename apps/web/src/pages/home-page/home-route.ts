@@ -1,13 +1,14 @@
 import { lazy } from "react";
 
-import type { AppRouteRegistration } from "../../types/route";
+import { defineStaticRoute } from "../../app/define-route";
 
-export const homeRoute = {
+export const homeRoute = defineStaticRoute({
   id: "home",
+  access: "authenticated",
   path: "/",
   Component: lazy(() =>
     import("./index").then((module) => ({
       default: module.HomePage,
     })),
   ),
-} satisfies AppRouteRegistration;
+});

@@ -190,7 +190,8 @@ rather than reading the machine timezone throughout the codebase.
 ### User timezone
 
 - Store one IANA timezone name on the user, for example `Asia/Jakarta`.
-- The registration form sends the browser-resolved timezone.
+- The registration form defaults to the browser-resolved timezone and offers
+  supported IANA timezone options instead of unrestricted free text.
 - Validate the timezone on the server and reject unsupported values.
 - User-facing dates and the definition of "today" use the stored timezone.
 - Database audit timestamps are stored in UTC.

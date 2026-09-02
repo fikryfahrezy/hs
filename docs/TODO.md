@@ -25,11 +25,11 @@ remain the detailed engineering reference.
 
 ## 2. Authentication
 
-- [ ] Add the users migration and shared authentication contracts.
-- [ ] Implement registration, login, session restoration, and logout.
-- [ ] Implement Argon2id password hashing and signed HTTP-only cookie sessions.
-- [ ] Add authentication throttling and protected-route behavior.
-- [ ] Add unit, integration, component, and Playwright authentication tests.
+- [x] Add the users migration and shared authentication contracts.
+- [x] Implement registration, login, session restoration, and logout.
+- [x] Implement Argon2id password hashing and signed HTTP-only cookie sessions.
+- [x] Add authentication throttling and protected-route behavior.
+- [x] Add unit, integration, component, and Playwright authentication tests.
 
 ## 3. Habit management and dashboard
 

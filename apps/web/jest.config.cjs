@@ -3,6 +3,8 @@ module.exports = {
   collectCoverageFrom: ["src/**/*.{ts,tsx}", "!src/index.tsx"],
   coverageDirectory: "coverage",
   moduleNameMapper: {
+    "^@habit-shaper/contracts$":
+      "<rootDir>/../../packages/contracts/src/index.ts",
     "^@test/(.*)$": "<rootDir>/test/$1",
     "\\.(css|less|scss|sass)$": "<rootDir>/test/style-mock.cjs",
   },

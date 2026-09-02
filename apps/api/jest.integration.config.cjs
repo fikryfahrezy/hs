@@ -1,6 +1,10 @@
 module.exports = {
   clearMocks: true,
   moduleFileExtensions: ["js", "json", "ts"],
+  moduleNameMapper: {
+    "^@habit-shaper/contracts$":
+      "<rootDir>/../../packages/contracts/src/index.ts",
+  },
   rootDir: ".",
   setupFiles: ["<rootDir>/test/support/set-test-env.ts"],
   testEnvironment: "node",

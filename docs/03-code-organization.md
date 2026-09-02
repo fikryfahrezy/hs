@@ -46,6 +46,7 @@ apps/web/src/
 ├── app/
 │   ├── app-config.ts
 │   ├── app-shell.tsx
+│   ├── define-route.ts
 │   ├── providers.tsx
 │   ├── query-client.ts
 │   └── route-registry.ts
@@ -59,22 +60,19 @@ apps/web/src/
 │   │   ├── components/
 │   │   ├── context/
 │   │   ├── hooks/
-│   │   ├── model/
-│   │   └── routes/
+│   │   └── model/
 │   ├── goals/
 │   │   ├── api/
 │   │   ├── components/
 │   │   ├── hooks/
-│   │   ├── model/
-│   │   └── routes/
+│   │   └── model/
 │   ├── habits/
 │   │   ├── api/
 │   │   ├── components/
 │   │   ├── config/
 │   │   ├── hooks/
 │   │   ├── lib/
-│   │   ├── model/
-│   │   └── routes/
+│   │   └── model/
 │   └── tracking/
 │       ├── api/
 │       ├── components/
@@ -91,10 +89,12 @@ apps/web/src/
 │   ├── dashboard/
 │   │   ├── index.test.tsx
 │   │   ├── index.tsx
+│   │   ├── dashboard-route.ts
 │   │   └── styles.css
 │   ├── login/
 │   │   ├── index.test.tsx
 │   │   ├── index.tsx
+│   │   ├── login-route.ts
 │   │   └── styles.css
 │   └── not-found/
 │       ├── index.tsx
@@ -116,16 +116,19 @@ apps/web/src/
 ### Frontend responsibilities
 
 - `app/` is the composition root. It configures providers, QueryClient defaults,
-  route registration, application shell, and application-level configuration.
+  the reusable route-definition helper, route aggregation, the application
+  shell, and application-level configuration.
 - `components/ui/` contains low-level reusable visual primitives without domain
   knowledge.
 - `components/feedback/` and `components/navigation/` contain reusable behavior
   such as query states, notifications, and pagination.
 - `features/<domain>/` owns domain-specific API calls, query definitions,
-  components, hooks, types, policies, route metadata, and calculations.
+  components, hooks, types, policies, and calculations.
 - `pages/` contains thin route-level composition components. Pages assemble
   feature components but do not own API calls or substantial domain logic. Each
-  page is a self-contained directory.
+  page is a self-contained directory and colocates its `*-route.ts` definition.
+  That definition owns both the router `path` and the type-safe `to()` builder;
+  `app/route-registry.ts` only aggregates the definitions.
 - `styles/` contains global CSS foundations, design tokens, and theme variable
   definitions. Component-specific styles stay beside their component.
 - `hooks/`, `lib/`, and `types/` at the source root contain only cross-feature,
@@ -315,12 +318,14 @@ apps/api/src/
 │   ├── auth/
 │   │   ├── application/
 │   │   ├── data/
+│   │   ├── dto/
 │   │   ├── transport/
 │   │   │   └── rest/
 │   │   └── auth.module.ts
 │   ├── goals/
 │   │   ├── application/
 │   │   ├── data/
+│   │   ├── dto/
 │   │   ├── transport/
 │   │   │   └── rest/
 │   │   └── goals.module.ts
@@ -328,6 +333,7 @@ apps/api/src/
 │   │   ├── application/
 │   │   ├── data/
 │   │   ├── domain/
+│   │   ├── dto/
 │   │   ├── transport/
 │   │   │   └── rest/
 │   │   └── habits.module.ts
@@ -335,6 +341,7 @@ apps/api/src/
 │       ├── application/
 │       ├── data/
 │       ├── domain/
+│       ├── dto/
 │       ├── transport/
 │       │   └── rest/
 │       └── tracking.module.ts
@@ -345,11 +352,17 @@ apps/api/src/
 
 - Each `features/<domain>` directory is an independent NestJS feature module.
 - `transport/rest/` owns controllers, HTTP validation, status codes, headers,
-  and request/response adaptation.
+  and protocol concerns. Controllers return response-ready class DTOs without
+  repeating application mapping.
 - `application/` owns use cases, orchestration, authorization decisions, and
-  transaction boundaries.
+  transaction boundaries. It constructs response DTOs when a use case returns
+  serialized API data.
 - `domain/` owns pure rules and calculations when the feature needs them.
-- `data/` owns raw SQL, row interfaces, result mapping, and repository classes.
+- `dto/` owns NestJS-friendly request or response classes shared by the feature
+  layers and ready for OpenAPI metadata when Swagger is introduced.
+- `data/` owns raw SQL, database-error translation, typed query projections, and
+  repository classes. Return compatible projections directly; add a mapper only
+  when it performs a meaningful representation or security transformation.
 - Keep simple features flat until multiple files justify a subdirectory; the
   structure is a boundary, not a requirement to create empty folders.
 - `database/` owns the MySQL pool lifecycle and database-level primitives only.

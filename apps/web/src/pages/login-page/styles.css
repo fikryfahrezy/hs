@@ -1,0 +1,45 @@
+@layer components {
+  .auth-page {
+    display: grid;
+    min-height: calc(100vh - 5rem);
+    place-items: center;
+    width: min(100% - 2rem, var(--content-width));
+    margin-inline: auto;
+    padding-block: var(--space-8);
+  }
+
+  .auth-card {
+    width: min(100%, 28rem);
+    border-top: 0.35rem solid var(--color-accent);
+    padding: clamp(var(--space-5), 5vw, var(--space-8));
+    background: var(--color-surface);
+    box-shadow: var(--shadow-panel);
+  }
+
+  .auth-card h1 {
+    margin: var(--space-2) 0;
+    font-size: clamp(2rem, 7vw, 3rem);
+    letter-spacing: -0.05em;
+  }
+
+  .auth-intro,
+  .auth-switch {
+    color: var(--color-text-muted);
+    line-height: 1.5;
+  }
+
+  .auth-card form {
+    display: grid;
+    gap: var(--space-4);
+    margin-block: var(--space-5);
+  }
+
+  .auth-switch {
+    margin-bottom: 0;
+  }
+
+  .auth-switch a {
+    color: var(--color-accent-strong);
+    font-weight: 700;
+  }
+}

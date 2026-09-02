@@ -78,9 +78,10 @@ weekly-stat rules.
 
 The API and application layers continue to use readable UUID strings. The API
 repository boundary converts a validated string to a 16-byte `Buffer` before
-binding it to SQL and converts a returned 16-byte value back to canonical text.
-This keeps database keys and indexes compact without leaking binary identifiers
-into domain, transport, logging, or frontend code.
+binding it to indexed predicates. Select projections convert stored UUIDs with
+`LOWER(BIN_TO_UUID(column)) AS id`, so repositories can return compatible typed
+rows directly. This keeps database keys and indexes compact without leaking
+binary identifiers into application, transport, logging, or frontend code.
 
 Repository conversion uses the UUID's 32 hexadecimal digits in network order;
 it does not reorder UUID fields. MySQL's version-1 time-part swap mode is not
@@ -91,10 +92,12 @@ used because application IDs are UUID version 4.
 - JSON request and response properties use `snake_case`.
 - URL query parameters and documented route parameter names use `snake_case`.
 - Database columns use `snake_case`.
-- Internal application/domain TypeScript, React props, and local state use
-  `camelCase`.
-- REST controllers map parsed snake-case requests to camel-case use-case inputs
-  and map application results back to snake-case response contracts.
+- Internal code may reuse compatible `snake_case` database or contract shapes
+  directly. Use `camelCase` for domain-specific values where no external shape
+  is being reused; do not add casing-only mappers.
+- REST controllers parse requests and delegate to use cases. Application
+  services construct response-ready class DTOs when serialization is required,
+  and controllers return those DTOs without another mapper.
 - Frontend API adapters parse snake-case response contracts and map them to
   camel-case feature values before returning data to hooks or components.
 - ISO calendar dates use `YYYY-MM-DD` strings.
@@ -156,7 +159,7 @@ timestamps, but the table and constraint behavior must match this section.
 | `id`            | `BINARY(16) NOT NULL`                                                              | UUID v4 primary key stored as 128 bits. |
 | `email`         | `VARCHAR(254) NOT NULL`                                                            | Trimmed and lowercased before storage.  |
 | `password_hash` | `VARCHAR(255) NOT NULL`                                                            | Encoded Argon2id hash only.             |
-| `timezone`      | `VARCHAR(64) CHARACTER SET ascii COLLATE ascii_bin NOT NULL`                       | Validated IANA timezone name.           |
+| `timezone`      | `VARCHAR(64) NOT NULL`                                                             | IANA name validated by the application. |
 | `created_at`    | `DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3)`                                | UTC.                                    |
 | `updated_at`    | `DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3)` | UTC.                                    |
 
@@ -883,8 +886,9 @@ stack traces, and constraint names are never returned to the browser.
 
 Repository methods that operate on owned data require `userId` as an explicit
 argument. Before executing SQL, the repository converts every validated UUID
-argument to a 16-byte buffer. UUID columns returned by `mysql2` are buffers and
-are converted back to canonical lowercase strings during row mapping.
+argument to a 16-byte buffer. UUID select projections use
+`LOWER(BIN_TO_UUID(column))` so MySQL returns canonical lowercase strings and no
+casing-only row mapper is needed.
 
 Keep the two conversion functions in one database utility, for example
 `database/binary-uuid.ts`. They must:
@@ -892,15 +896,17 @@ Keep the two conversion functions in one database utility, for example
 - accept only a canonical UUID already validated at the transport or application
   boundary;
 - remove hyphens and decode exactly 32 hexadecimal digits into 16 bytes;
-- reject any buffer whose length is not exactly 16 bytes when reading a row;
+- reject any buffer whose length is not exactly 16 bytes when a fixture, test,
+  or query intentionally decodes a raw binary UUID;
 - encode bytes to 32 lowercase hexadecimal digits and restore the canonical
   `8-4-4-4-12` hyphen grouping; and
 - round-trip UUID values without applying byte or time-field swapping.
 
-Ordinary application queries bind these buffers directly rather than wrapping
-indexed columns in conversion functions. `UUID_TO_BIN()` and `BIN_TO_UUID()`
-remain useful for manual SQL inspection and fixtures, but repository correctness
-does not depend on those functions.
+Ordinary application predicates bind these buffers directly rather than
+wrapping indexed columns in conversion functions. `BIN_TO_UUID()` is used only
+in the selected projection, not the predicate, so indexed lookups remain intact.
+The binary conversion utility remains independently round-trip tested for input
+binding, fixtures, and other database-boundary uses.
 
 Use ownership-scoped SQL patterns:
 
@@ -1010,14 +1016,19 @@ packages/contracts/src/
 └── index.ts
 ```
 
-- Each module exports a strict Zod schema and its inferred TypeScript type.
+- Each module exports a Zod schema and its inferred TypeScript type.
+- Request schemas are strict and reject unknown properties. Response schemas
+  validate required known fields while accepting and stripping additive unknown
+  properties for forward compatibility.
 - Request schemas own normalization that is safe at the transport boundary,
   such as trimming names and descriptions.
 - Password schemas validate without transforming the password.
 - Request and response schemas use snake-case properties and describe serialized
   JSON, not domain objects or MySQL rows.
-- REST controllers parse transport values, map them to camel-case application
-  inputs, and map application results back to snake-case response schemas.
+- REST controllers parse request values and delegate to application use cases.
+- Application services construct class response DTOs that implement shared
+  contract types. Trusted backend output is compile-time checked and is not
+  parsed again with Zod before returning it.
 - Frontend feature API adapters parse successful JSON with response schemas
   and map it to camel-case feature values before returning data to query hooks.
 - Error responses are normalized by the shared API client.
@@ -1078,8 +1089,8 @@ file. Local Compose supplies its development values directly.
 
 The implementation must prove these contracts at the lowest effective level:
 
-- migrations, foreign keys, cascades, composite keys, and row mapping against
-  real MySQL;
+- migrations, foreign keys, cascades, composite keys, and typed select
+  projections against real MySQL;
 - canonical string-to-binary-to-string UUID round trips and invalid buffer
   lengths at the database utility boundary;
 - binary primary- and foreign-key persistence, joins, and ownership predicates
@@ -1094,8 +1105,8 @@ The implementation must prove these contracts at the lowest effective level:
 - date behavior at Monday/Sunday, month, year, and daylight-saving boundaries;
 - idempotent repeated completion and relapse requests;
 - response parsing through shared schemas in frontend adapter tests; and
-- snake-case transport to camel-case application mapping in controllers and
-  frontend API adapters.
+- response DTO serialization in application services and snake-case response
+  mapping in frontend API adapters.
 
 The broader distribution of unit, integration, component, and E2E coverage is
 defined in [Testing Strategy](./06-testing-strategy.md).
@@ -1109,11 +1120,10 @@ column. This reduces primary-key, foreign-key, and index width and avoids
 character-set or collation semantics for identifiers. The public API, domain
 code, logs, and tests still use canonical UUID strings.
 
-The cost is explicit conversion during repository parameter binding and row
-mapping. Centralizing and testing that conversion is preferable to repeating
-36-byte keys across InnoDB indexes. Manual SQL can use `UUID_TO_BIN()` and
-`BIN_TO_UUID()` when readability is needed. UUIDv4 bytes retain their original
-order; the MySQL version-1 time-field swap flag is not used.
+The cost is explicit conversion during repository parameter binding and select
+projection. Centralizing and testing that conversion is preferable to repeating
+36-byte keys across InnoDB indexes. UUIDv4 bytes retain their original order;
+the MySQL version-1 time-field swap flag is not used.
 
 ### Event rows instead of stored counters
 
@@ -1155,9 +1165,10 @@ outside the MVP.
 Before changing the status from Draft to Ready:
 
 - confirm the table definitions and migration order;
-- confirm the binary UUID conversion utility and repository row-mapping
+- confirm the binary UUID binding utility and lowercase select-projection
   convention;
-- confirm the snake-case transport and camel-case internal naming boundary;
+- confirm where compatible snake-case shapes are reused and where a meaningful
+  serialization mapper remains necessary;
 - confirm the week-rate treatment of an incomplete today as pending;
 - confirm the build-streak treatment of an incomplete today as not yet broken;
 - confirm the day-1 and relapse-day semantics for break habits;

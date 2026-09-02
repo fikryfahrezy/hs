@@ -6,6 +6,7 @@ import { NestFactory } from "@nestjs/core";
 import { type NestExpressApplication } from "@nestjs/platform-express";
 
 import { AppModule } from "./app.module";
+import { ApiExceptionFilter } from "./common/http/api-exception.filter";
 import { getAppConfig } from "./config/app-config";
 
 async function bootstrap() {
@@ -19,6 +20,7 @@ async function bootstrap() {
   app.use(helmet());
   app.use(cookieParser());
   app.useBodyParser("json", { limit: "32kb" });
+  app.useGlobalFilters(new ApiExceptionFilter());
 
   await app.listen(config.port, "0.0.0.0");
 }

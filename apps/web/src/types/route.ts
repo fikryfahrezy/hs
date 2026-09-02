@@ -2,6 +2,7 @@ import type { ComponentType, LazyExoticComponent } from "react";
 
 type RouteRegistrationBase = {
   id: string;
+  access: "authenticated" | "public";
   Component: LazyExoticComponent<ComponentType>;
 };
 
@@ -10,11 +11,11 @@ type IndexRouteRegistration = RouteRegistrationBase & {
   path?: never;
 };
 
-type PathRouteRegistration = RouteRegistrationBase & {
+export type AppPathRouteRegistration = RouteRegistrationBase & {
   index?: false;
   path: string;
 };
 
 export type AppRouteRegistration =
   | IndexRouteRegistration
-  | PathRouteRegistration;
+  | AppPathRouteRegistration;

@@ -256,7 +256,8 @@ tests.
 
 Repository integration tests verify:
 
-- parameterized SQL and result mapping;
+- parameterized SQL, typed projections, and meaningful representation
+  conversions;
 - uniqueness and foreign-key constraints;
 - nullable values and date serialization;
 - user-scoped reads and writes; and

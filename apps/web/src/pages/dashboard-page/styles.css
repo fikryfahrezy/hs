@@ -1,0 +1,13 @@
+@layer components {
+  .dashboard-page {
+    width: min(100% - 2rem, var(--content-width));
+    margin-inline: auto;
+    padding-block: var(--space-8);
+  }
+
+  .dashboard-page h1 {
+    margin: var(--space-2) 0 var(--space-4);
+    font-size: clamp(2.25rem, 7vw, 4rem);
+    letter-spacing: -0.055em;
+  }
+}
