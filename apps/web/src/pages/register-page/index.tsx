@@ -1,49 +1,13 @@
-import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  RegisterRequestSchema,
-  type RegisterRequest,
-} from "@habit-shaper/contracts";
-import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
 
 import { AppShell } from "#app/components/app-shell";
-import { FormField } from "#app/components/form-field";
-import { Button } from "#app/components/ui/button";
-import { useRegisterMutation } from "#app/features/auth/queries/auth-queries";
-import { ApiError } from "#app/lib/api-client";
+import { RegisterForm } from "#app/features/auth/components/register-form";
 import { dashboardRoute } from "../dashboard-page/dashboard-route";
 import { loginRoute } from "../login-page/login-route";
 import "../login-page/styles.css";
 
-function browserTimeZone(): string {
-  return Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
-}
-
 export function RegisterPage() {
   const navigate = useNavigate();
-  const mutation = useRegisterMutation();
-  const defaultTimeZone = browserTimeZone();
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<RegisterRequest>({
-    resolver: zodResolver(RegisterRequestSchema),
-    defaultValues: {
-      email: "",
-      password: "",
-      timezone: defaultTimeZone,
-    },
-  });
-
-  const submit = handleSubmit(async (input) => {
-    try {
-      await mutation.mutateAsync({ input });
-      navigate(dashboardRoute.to(), { replace: true });
-    } catch {
-      // The mutation state renders the normalized error while preserving inputs.
-    }
-  });
 
   return (
     <AppShell>
@@ -51,35 +15,9 @@ export function RegisterPage() {
         <section className="auth-card" aria-labelledby="register-title">
           <p className="eyebrow">Start small</p>
           <h1 id="register-title">Create your account</h1>
-          <form onSubmit={(event) => void submit(event)} noValidate>
-            <FormField
-              id="email"
-              label="Email"
-              type="email"
-              autoComplete="email"
-              error={errors.email?.message}
-              {...register("email")}
-            />
-            <FormField
-              id="password"
-              label="Password"
-              type="password"
-              autoComplete="new-password"
-              error={errors.password?.message}
-              {...register("password")}
-            />
-            <input type="hidden" {...register("timezone")} />
-            {mutation.error ? (
-              <p className="form-error" role="alert">
-                {mutation.error instanceof ApiError
-                  ? mutation.error.message
-                  : "We could not create your account. Try again."}
-              </p>
-            ) : null}
-            <Button type="submit" disabled={mutation.isPending}>
-              {mutation.isPending ? "Creating account…" : "Create account"}
-            </Button>
-          </form>
+          <RegisterForm
+            onSuccess={() => navigate(dashboardRoute.to(), { replace: true })}
+          />
           <p className="auth-switch">
             Already have an account? <Link to={loginRoute.to()}>Sign in</Link>
           </p>

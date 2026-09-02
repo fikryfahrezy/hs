@@ -9,6 +9,7 @@ import { useForm } from "react-hook-form";
 import { FormField, SelectField } from "#app/components/form-field";
 import { Button } from "#app/components/ui/button";
 import { useCreateHabitMutation } from "#app/features/habits/queries/habit-queries";
+import "./styles.css";
 
 export function CreateHabitForm() {
   "use no memo";

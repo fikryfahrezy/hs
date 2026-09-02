@@ -1,0 +1,38 @@
+@layer components {
+  .build-tracking {
+    display: grid;
+    gap: var(--space-2);
+  }
+  .build-tracking p {
+    margin: 0;
+  }
+  .week-strip {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: var(--space-1);
+  }
+  .day-state {
+    display: grid;
+    min-width: 0;
+    min-height: 3.25rem;
+    place-items: center;
+    border: 1px solid var(--color-border);
+    padding: var(--space-1);
+    background: var(--color-background);
+    color: var(--color-text-muted);
+    font-size: var(--font-size-xs);
+    cursor: pointer;
+  }
+  .day-state:disabled {
+    cursor: not-allowed;
+    opacity: 0.45;
+  }
+  .day-completed {
+    border-color: var(--color-accent);
+    background: var(--color-accent);
+    color: var(--color-on-accent);
+  }
+  .day-missed {
+    border-color: var(--color-danger);
+  }
+}

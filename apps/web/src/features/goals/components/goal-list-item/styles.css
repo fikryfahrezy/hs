@@ -1,0 +1,31 @@
+@layer components {
+  .goal-card {
+    display: grid;
+    gap: var(--space-3);
+    border: 1px solid var(--color-border);
+    padding: var(--space-4);
+    background: var(--color-background);
+  }
+  .goal-card h3 {
+    margin: var(--space-2) 0 0;
+  }
+  .goal-card p:last-child {
+    margin-bottom: 0;
+  }
+  .goal-habit {
+    margin: 0;
+    color: var(--color-text-muted);
+    font-size: var(--font-size-sm);
+    font-weight: 700;
+  }
+  .goal-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-3);
+    justify-content: flex-start;
+  }
+  .goal-actions > span {
+    flex-basis: 100%;
+  }
+}
