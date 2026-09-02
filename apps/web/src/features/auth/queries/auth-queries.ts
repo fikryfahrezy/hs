@@ -19,12 +19,20 @@ type LoginMutationParams = {
   input: LoginRequest;
 };
 
+function clearNonAuthQueries(queryClient: ReturnType<typeof useQueryClient>) {
+  queryClient.removeQueries({
+    predicate: (query) => query.queryKey[0] !== authQueryKeys.session[0],
+  });
+}
+
 export function useLoginMutation() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({ input }: LoginMutationParams) => login(input),
-    onSuccess: (user) =>
-      queryClient.setQueryData<SessionUser>(authQueryKeys.session, user),
+    onSuccess: (user) => {
+      clearNonAuthQueries(queryClient);
+      queryClient.setQueryData<SessionUser>(authQueryKeys.session, user);
+    },
   });
 }
 
@@ -36,8 +44,10 @@ export function useRegisterMutation() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({ input }: RegisterMutationParams) => register(input),
-    onSuccess: (user) =>
-      queryClient.setQueryData<SessionUser>(authQueryKeys.session, user),
+    onSuccess: (user) => {
+      clearNonAuthQueries(queryClient);
+      queryClient.setQueryData<SessionUser>(authQueryKeys.session, user);
+    },
   });
 }
 
@@ -45,6 +55,9 @@ export function useLogoutMutation() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: logout,
-    onSuccess: () => queryClient.setQueryData(authQueryKeys.session, null),
+    onSuccess: () => {
+      clearNonAuthQueries(queryClient);
+      queryClient.setQueryData(authQueryKeys.session, null);
+    },
   });
 }
