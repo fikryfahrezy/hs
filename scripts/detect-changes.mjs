@@ -22,7 +22,7 @@ const sharedPatterns = [
   /^packages\/contracts\//,
   /^package(?:-lock)?\.json$/,
   /^tsconfig\.base\.json$/,
-  /^\.github\/workflows\/ci\.yml$/,
+  /^\.github\/workflows\/ci\.yaml$/,
 ];
 const frontendPatterns = [/^apps\/web\//, ...sharedPatterns];
 const backendPatterns = [/^apps\/api\//, /^db\//, ...sharedPatterns];
@@ -33,12 +33,12 @@ const e2ePatterns = [
   /^tests\/e2e\//,
   /^db\//,
   /^infra\//,
-  /^compose(?:\.deploy)?\.yml$/,
+  /^compose(?:\.deploy)?\.yaml$/,
   /Dockerfile$/,
   /^\.dockerignore$/,
   /^\.env\.example$/,
   /^package(?:-lock)?\.json$/,
-  /^\.github\/workflows\/ci\.yml$/,
+  /^\.github\/workflows\/ci\.yaml$/,
 ];
 
 function matchesAny(patterns) {

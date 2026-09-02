@@ -15,7 +15,7 @@ those suites run in CI.
 
 ## Workflow shape
 
-Use one `.github/workflows/ci.yml` workflow containing separate logical jobs:
+Use one `.github/workflows/ci.yaml` workflow containing separate logical jobs:
 
 ```text
                   ┌─ frontend ─┐
@@ -122,7 +122,7 @@ package.json
 package-lock.json
 tsconfig.base.json
 frontend build/test configuration
-.github/workflows/ci.yml
+.github/workflows/ci.yaml
 ```
 
 ### Backend paths
@@ -135,7 +135,7 @@ package.json
 package-lock.json
 tsconfig.base.json
 backend build/test configuration
-.github/workflows/ci.yml
+.github/workflows/ci.yaml
 ```
 
 ### E2E paths
@@ -147,14 +147,14 @@ packages/contracts/**
 tests/e2e/**
 db/**
 infra/**
-compose.yml
-compose.deploy.yml
+compose.yaml
+compose.deploy.yaml
 **/Dockerfile
 .dockerignore
 .env.example
 package.json
 package-lock.json
-.github/workflows/ci.yml
+.github/workflows/ci.yaml
 ```
 
 A contracts, root dependency, or CI workflow change therefore validates both

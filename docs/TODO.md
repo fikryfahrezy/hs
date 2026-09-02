@@ -12,7 +12,7 @@ remain the detailed engineering reference.
 - [x] Configure Oxfmt, Oxlint, strict TypeScript, Jest, and Lefthook.
 - [x] Add the MySQL connection, Dbmate migration plumbing, and API health check.
 - [x] Add multi-stage Dockerfiles, Nginx routing, health checks, and
-      `compose.yml`.
+      `compose.yaml`.
 - [x] Ensure a fresh clone starts with `docker compose up` without requiring an
       `.env` file.
 - [x] Add `.env.example` for optional overrides and production configuration.

@@ -38,13 +38,13 @@ habit-shaper/
 │       └── default.conf
 ├── docs/
 ├── .github/workflows/
-├── compose.yml
+├── compose.yaml
 ├── package.json
 ├── package-lock.json
 ├── tsconfig.base.json
 ├── oxlint.config.ts
 ├── .oxfmtrc.json
-├── lefthook.yml
+├── lefthook.yaml
 ├── .env.example
 └── README.md
 ```

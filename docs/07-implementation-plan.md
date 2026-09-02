@@ -443,7 +443,7 @@ Work:
 - Add the web application shell, routing, QueryClient, API client, global CSS
   foundations, and one accessible UI primitive.
 - Add Dbmate plumbing, multi-stage Dockerfiles, Nginx routing, health checks,
-  and `compose.yml` service ordering.
+  and `compose.yaml` service ordering.
 - Add the CI skeleton after local commands exist.
 
 Acceptance criteria:
