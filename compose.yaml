@@ -47,7 +47,9 @@ services:
       target: runtime
     restart: unless-stopped
     environment:
-      COOKIE_SECURE: ${COOKIE_SECURE:-false}
+      # Pinned: the local stack is served over plain HTTP, so a `Secure`
+      # cookie would silently break sign-in. Override it in `compose.deploy.yaml`.
+      COOKIE_SECURE: "false"
       DATABASE_URL: mysql://${MYSQL_USER:-habit_shaper}:${MYSQL_PASSWORD:-habit_shaper_local}@db:3306/${MYSQL_DATABASE:-habit_shaper}
       JWT_SECRET: ${JWT_SECRET:-local-only-secret-change-before-production}
       NODE_ENV: ${NODE_ENV:-development}
