@@ -2,7 +2,7 @@ import { type INestApplication } from "@nestjs/common";
 import { type Pool } from "mysql2/promise";
 import request from "supertest";
 
-import { DATABASE_POOL } from "../../src/database/database.constants";
+import { DATABASE_POOL } from "#app/database/database.constants";
 import { createTestApp } from "../support/create-test-app";
 
 describe("authentication endpoints", () => {

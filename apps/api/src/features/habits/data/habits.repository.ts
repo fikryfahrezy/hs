@@ -5,8 +5,8 @@ import {
   type RowDataPacket,
 } from "mysql2/promise";
 
-import { uuidToBinary } from "../../../database/binary-uuid";
-import { DATABASE_POOL } from "../../../database/database.constants";
+import { uuidToBinary } from "#app/database/binary-uuid";
+import { DATABASE_POOL } from "#app/database/database.constants";
 import {
   type CompletionDateRow,
   type CompletionRow,

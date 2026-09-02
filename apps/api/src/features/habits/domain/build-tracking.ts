@@ -1,10 +1,6 @@
 import { HABIT_DAY_STATE, type HabitDayState } from "@habit-shaper/contracts";
 
-import {
-  addDays,
-  startOfWeek,
-  toEpochDay,
-} from "../../../common/time/calendar";
+import { addDays, startOfWeek, toEpochDay } from "#app/common/time/calendar";
 
 export function buildTracking(input: {
   startDate: string;

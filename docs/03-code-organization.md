@@ -39,6 +39,32 @@ Repository-standard and tool-mandated filenames such as `Dockerfile`,
 `README.md`, `package.json`, timestamped migrations, and framework configuration
 files are exceptions when their ecosystem defines the name.
 
+## Import paths
+
+Both applications expose `#app/*` as an alias for their own `src/` directory.
+Use it when an import crosses a top-level source directory or would otherwise
+require multiple parent traversals:
+
+```ts
+import { AppError } from "#app/common/errors/app-error";
+import { Button } from "#app/components/ui/button";
+```
+
+Keep relative imports for nearby files within the same feature or component:
+
+```ts
+import { AUTH_POLICY } from "../auth-policy";
+import { HabitsRepository } from "../data/habits.repository";
+import "./styles.css";
+```
+
+The alias is application-local: `#app/*` in `apps/api` resolves to
+`apps/api/src/*`, while the same alias in `apps/web` resolves to
+`apps/web/src/*`. It must not be used to import files from another application
+or to bypass the dependency-direction rules below. Shared transport types must
+continue to use the `@habit-shaper/contracts` workspace package, and web tests
+must continue to use `@test/*` for test utilities.
+
 ## Frontend structure
 
 ```text

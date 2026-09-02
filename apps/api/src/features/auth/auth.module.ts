@@ -1,7 +1,7 @@
 import { Module } from "@nestjs/common";
 import { JwtModule } from "@nestjs/jwt";
 
-import { getAppConfig } from "../../config/app-config";
+import { getAppConfig } from "#app/config/app-config";
 import { AuthService } from "./application/auth.service";
 import { PasswordService } from "./application/password.service";
 import { TokenService } from "./application/token.service";

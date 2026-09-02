@@ -9,7 +9,7 @@ import {
   responseNumber,
   responseRecord,
   responseString,
-} from "../../lib/response-value";
+} from "#app/lib/response-value";
 
 export class HabitDay {
   public readonly date: string;

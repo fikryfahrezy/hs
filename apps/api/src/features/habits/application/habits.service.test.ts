@@ -1,7 +1,7 @@
 import { ERROR_CODE } from "@habit-shaper/contracts";
 
-import { AppError } from "../../../common/errors/app-error";
-import { type AuthService } from "../../auth/application/auth.service";
+import { AppError } from "#app/common/errors/app-error";
+import { type AuthService } from "#app/features/auth/application/auth.service";
 import { type HabitsRepository } from "../data/habits.repository";
 import { BuildHabitResponseDto } from "../dto/habit-response.dto";
 import { HabitsService } from "./habits.service";

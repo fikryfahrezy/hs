@@ -1,6 +1,6 @@
 import { type CreateHabitRequest } from "@habit-shaper/contracts";
 
-import { requestJson } from "../../../lib/api-client";
+import { requestJson } from "#app/lib/api-client";
 import { habitFromApi, type Habit } from "../habit.types";
 
 const HABITS_ENDPOINT = "/api/habits";

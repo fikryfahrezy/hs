@@ -1,4 +1,4 @@
-import { HealthStatus } from "../../features/health/components/health-status";
+import { HealthStatus } from "#app/features/health/components/health-status";
 import "./styles.css";
 
 export function HomePage() {

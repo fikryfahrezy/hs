@@ -1,6 +1,6 @@
 import { lazy } from "react";
 
-import { defineStaticRoute } from "../../app/define-route";
+import { defineStaticRoute } from "#app/app/define-route";
 
 export const homeRoute = defineStaticRoute({
   id: "home",

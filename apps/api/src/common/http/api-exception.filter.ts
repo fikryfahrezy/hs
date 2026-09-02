@@ -14,7 +14,7 @@ import {
 } from "@habit-shaper/contracts";
 import { type Response } from "express";
 
-import { AppError } from "../errors/app-error";
+import { AppError } from "#app/common/errors/app-error";
 
 function sendError(
   response: Response,

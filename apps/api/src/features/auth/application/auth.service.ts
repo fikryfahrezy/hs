@@ -3,7 +3,7 @@ import { randomUUID } from "node:crypto";
 import { Injectable } from "@nestjs/common";
 import { ERROR_CODE } from "@habit-shaper/contracts";
 
-import { AppError } from "../../../common/errors/app-error";
+import { AppError } from "#app/common/errors/app-error";
 import { EmailAlreadyExistsError } from "../auth.errors";
 import { type AuthUser } from "../auth.types";
 import { AuthRepository } from "../data/auth.repository";

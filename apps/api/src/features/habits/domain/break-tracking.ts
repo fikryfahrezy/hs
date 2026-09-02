@@ -1,4 +1,4 @@
-import { toEpochDay } from "../../../common/time/calendar";
+import { toEpochDay } from "#app/common/time/calendar";
 
 export function cleanStreak(
   startDate: string,

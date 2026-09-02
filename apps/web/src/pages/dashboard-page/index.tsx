@@ -6,15 +6,15 @@ import {
 } from "@habit-shaper/contracts";
 import { useForm } from "react-hook-form";
 
-import { AppShell } from "../../components/app-shell";
-import { FormField, SelectField } from "../../components/form-field";
-import { Button } from "../../components/ui/button";
-import { useLogoutMutation } from "../../features/auth/queries/auth-queries";
-import { HabitCard } from "../../features/habits/components/habit-card";
+import { AppShell } from "#app/components/app-shell";
+import { FormField, SelectField } from "#app/components/form-field";
+import { Button } from "#app/components/ui/button";
+import { useLogoutMutation } from "#app/features/auth/queries/auth-queries";
+import { HabitCard } from "#app/features/habits/components/habit-card";
 import {
   useCreateHabitMutation,
   useHabitsQuery,
-} from "../../features/habits/queries/habit-queries";
+} from "#app/features/habits/queries/habit-queries";
 import "./styles.css";
 
 export function DashboardPage() {

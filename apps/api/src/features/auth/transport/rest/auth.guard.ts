@@ -1,7 +1,7 @@
 import { CanActivate, ExecutionContext, Injectable } from "@nestjs/common";
 import { ERROR_CODE } from "@habit-shaper/contracts";
 
-import { AppError } from "../../../../common/errors/app-error";
+import { AppError } from "#app/common/errors/app-error";
 import { TokenService } from "../../application/token.service";
 import { AUTH_POLICY } from "../../auth-policy";
 

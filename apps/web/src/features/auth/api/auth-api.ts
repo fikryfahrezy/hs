@@ -3,7 +3,7 @@ import {
   type RegisterRequest,
 } from "@habit-shaper/contracts";
 
-import { ApiError, requestJson } from "../../../lib/api-client";
+import { ApiError, requestJson } from "#app/lib/api-client";
 import { SessionUser } from "../auth.types";
 
 async function parseUser(request: Promise<unknown>): Promise<SessionUser> {

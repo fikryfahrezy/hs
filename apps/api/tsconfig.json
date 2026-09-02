@@ -8,6 +8,9 @@
     "module": "Node16",
     "moduleResolution": "Node16",
     "outDir": "dist",
+    "paths": {
+      "#app/*": ["./src/*"]
+    },
     "removeComments": true,
     "rootDir": "src",
     "sourceMap": true,

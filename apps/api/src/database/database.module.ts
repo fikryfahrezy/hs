@@ -1,7 +1,7 @@
 import { Global, Module } from "@nestjs/common";
 import { createPool } from "mysql2/promise";
 
-import { getAppConfig } from "../config/app-config";
+import { getAppConfig } from "#app/config/app-config";
 import { DATABASE_POOL } from "./database.constants";
 import { DatabaseShutdownService } from "./database-shutdown.service";
 

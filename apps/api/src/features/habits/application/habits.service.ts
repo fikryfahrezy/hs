@@ -7,13 +7,13 @@ import {
   type HabitType,
 } from "@habit-shaper/contracts";
 
-import { AppError } from "../../../common/errors/app-error";
+import { AppError } from "#app/common/errors/app-error";
 import {
   dateInTimeZone,
   startOfWeek,
   toEpochDay,
-} from "../../../common/time/calendar";
-import { AuthService } from "../../auth/application/auth.service";
+} from "#app/common/time/calendar";
+import { AuthService } from "#app/features/auth/application/auth.service";
 import { HabitsRepository } from "../data/habits.repository";
 import { cleanStreak } from "../domain/break-tracking";
 import { buildTracking, isCompletionEligible } from "../domain/build-tracking";

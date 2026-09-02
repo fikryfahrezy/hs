@@ -1,7 +1,7 @@
 import { Inject, Injectable } from "@nestjs/common";
 import { type Pool } from "mysql2/promise";
 
-import { DATABASE_POOL } from "../database/database.constants";
+import { DATABASE_POOL } from "#app/database/database.constants";
 
 @Injectable()
 export class HealthService {

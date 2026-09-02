@@ -18,9 +18,9 @@ import {
   ListHabitsQuerySchema,
 } from "@habit-shaper/contracts";
 
-import { parseSchema } from "../../../../common/validation/parse-schema";
-import { AuthGuard } from "../../../auth/transport/rest/auth.guard";
-import { CurrentUserId } from "../../../auth/transport/rest/current-user-id";
+import { parseSchema } from "#app/common/validation/parse-schema";
+import { AuthGuard } from "#app/features/auth/transport/rest/auth.guard";
+import { CurrentUserId } from "#app/features/auth/transport/rest/current-user-id";
 import { HabitsService } from "../../application/habits.service";
 import { type HabitResponseDto } from "../../dto/habit-response.dto";
 

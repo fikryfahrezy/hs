@@ -15,8 +15,8 @@ import {
 } from "@habit-shaper/contracts";
 import { type Response } from "express";
 
-import { parseSchema } from "../../../../common/validation/parse-schema";
-import { getAppConfig } from "../../../../config/app-config";
+import { parseSchema } from "#app/common/validation/parse-schema";
+import { getAppConfig } from "#app/config/app-config";
 import { AuthService } from "../../application/auth.service";
 import { TokenService } from "../../application/token.service";
 import { AUTH_POLICY } from "../../auth-policy";

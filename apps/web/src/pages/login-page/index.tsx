@@ -3,11 +3,11 @@ import { LoginRequestSchema, type LoginRequest } from "@habit-shaper/contracts";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
 
-import { AppShell } from "../../components/app-shell";
-import { FormField } from "../../components/form-field";
-import { Button } from "../../components/ui/button";
-import { useLoginMutation } from "../../features/auth/queries/auth-queries";
-import { ApiError } from "../../lib/api-client";
+import { AppShell } from "#app/components/app-shell";
+import { FormField } from "#app/components/form-field";
+import { Button } from "#app/components/ui/button";
+import { useLoginMutation } from "#app/features/auth/queries/auth-queries";
+import { ApiError } from "#app/lib/api-client";
 import { dashboardRoute } from "../dashboard-page/dashboard-route";
 import { registerRoute } from "../register-page/register-route";
 import "./styles.css";

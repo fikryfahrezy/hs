@@ -1,6 +1,6 @@
 import { HABIT_DAY_STATE, HABIT_TYPE } from "@habit-shaper/contracts";
 import { useState } from "react";
-import { Button } from "../../../../components/ui/button";
+import { Button } from "#app/components/ui/button";
 import { type Habit } from "../../habit.types";
 import {
   useCompletionMutation,

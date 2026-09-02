@@ -1,7 +1,7 @@
 import { type z } from "zod";
 import { ERROR_CODE } from "@habit-shaper/contracts";
 
-import { AppError } from "../errors/app-error";
+import { AppError } from "#app/common/errors/app-error";
 
 export function parseSchema<T>(schema: z.ZodType<T>, value: unknown): T {
   const result = schema.safeParse(value);

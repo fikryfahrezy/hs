@@ -2,6 +2,9 @@
   "name": "@habit-shaper/api",
   "version": "0.0.0",
   "private": true,
+  "imports": {
+    "#app/*": "./dist/*.js"
+  },
   "scripts": {
     "build": "nest build",
     "dev": "nest start --watch",

@@ -6,11 +6,11 @@ import {
 import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
 
-import { AppShell } from "../../components/app-shell";
-import { FormField, SelectField } from "../../components/form-field";
-import { Button } from "../../components/ui/button";
-import { useRegisterMutation } from "../../features/auth/queries/auth-queries";
-import { ApiError } from "../../lib/api-client";
+import { AppShell } from "#app/components/app-shell";
+import { FormField, SelectField } from "#app/components/form-field";
+import { Button } from "#app/components/ui/button";
+import { useRegisterMutation } from "#app/features/auth/queries/auth-queries";
+import { ApiError } from "#app/lib/api-client";
 import { dashboardRoute } from "../dashboard-page/dashboard-route";
 import { loginRoute } from "../login-page/login-route";
 import "../login-page/styles.css";

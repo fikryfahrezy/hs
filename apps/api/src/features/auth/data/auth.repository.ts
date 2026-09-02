@@ -5,9 +5,9 @@ import {
   type RowDataPacket,
 } from "mysql2/promise";
 
-import { DATABASE_POOL } from "../../../database/database.constants";
-import { uuidToBinary } from "../../../database/binary-uuid";
-import { isMysqlDuplicateEntryError } from "../../../database/mysql-error";
+import { DATABASE_POOL } from "#app/database/database.constants";
+import { uuidToBinary } from "#app/database/binary-uuid";
+import { isMysqlDuplicateEntryError } from "#app/database/mysql-error";
 import { EmailAlreadyExistsError } from "../auth.errors";
 import { type AuthUser, type StoredAuthUser } from "../auth.types";
 

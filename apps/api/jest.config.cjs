@@ -4,6 +4,7 @@ module.exports = {
   coverageDirectory: "coverage/unit",
   moduleFileExtensions: ["js", "json", "ts"],
   moduleNameMapper: {
+    "^#app/(.*)$": "<rootDir>/src/$1",
     "^@habit-shaper/contracts$":
       "<rootDir>/../../packages/contracts/src/index.ts",
   },

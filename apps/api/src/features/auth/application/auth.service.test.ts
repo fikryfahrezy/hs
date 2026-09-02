@@ -1,4 +1,4 @@
-import { AppError } from "../../../common/errors/app-error";
+import { AppError } from "#app/common/errors/app-error";
 import { ERROR_CODE } from "@habit-shaper/contracts";
 import { EmailAlreadyExistsError } from "../auth.errors";
 import { type StoredAuthUser } from "../auth.types";

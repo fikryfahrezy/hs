@@ -1,4 +1,4 @@
-import { responseRecord, responseString } from "../../lib/response-value";
+import { responseRecord, responseString } from "#app/lib/response-value";
 
 export class SessionUser {
   public readonly id: string;
