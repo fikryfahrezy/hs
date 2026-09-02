@@ -50,7 +50,7 @@ export function RegisterPage() {
 
   const submit = handleSubmit(async (input) => {
     try {
-      await mutation.mutateAsync(input);
+      await mutation.mutateAsync({ input });
       navigate(dashboardRoute.to(), { replace: true });
     } catch {
       // The mutation state renders the normalized error while preserving inputs.
@@ -59,7 +59,7 @@ export function RegisterPage() {
 
   return (
     <AppShell>
-      <main className="auth-page">
+      <main className="auth-page" id="main-content">
         <section className="auth-card" aria-labelledby="register-title">
           <p className="eyebrow">Start small</p>
           <h1 id="register-title">Create your account</h1>

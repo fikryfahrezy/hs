@@ -19,6 +19,7 @@ export class ApiError extends Error {
 type RequestOptions = {
   method?: "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
   body?: unknown;
+  signal?: AbortSignal;
 };
 
 export async function requestJson(
@@ -34,6 +35,7 @@ export async function requestJson(
         : { "Content-Type": "application/json" }),
     },
     method: options.method ?? "GET",
+    ...(options.signal ? { signal: options.signal } : {}),
     ...(options.body === undefined
       ? {}
       : { body: JSON.stringify(options.body) }),

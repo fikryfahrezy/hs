@@ -5,28 +5,50 @@ import { habitFromApi, type Habit } from "../habit.types";
 
 const HABITS_ENDPOINT = "/api/habits";
 
-export async function listHabits(): Promise<Habit[]> {
-  const response = await requestJson(HABITS_ENDPOINT);
+type ListHabitsOptions = {
+  signal?: AbortSignal;
+};
+
+export async function listHabits({ signal }: ListHabitsOptions = {}): Promise<
+  Habit[]
+> {
+  const response = await requestJson(HABITS_ENDPOINT, { signal });
   return Array.isArray(response) ? response.map(habitFromApi) : [];
 }
 
-export async function createHabit(input: CreateHabitRequest): Promise<Habit> {
+type CreateHabitParams = {
+  input: CreateHabitRequest;
+};
+
+export async function createHabit({
+  input,
+}: CreateHabitParams): Promise<Habit> {
   return habitFromApi(
     await requestJson(HABITS_ENDPOINT, { method: "POST", body: input }),
   );
 }
 
-export async function deleteHabit(id: string): Promise<void> {
+type DeleteHabitParams = {
+  id: string;
+};
+
+export async function deleteHabit({ id }: DeleteHabitParams): Promise<void> {
   await requestJson(`${HABITS_ENDPOINT}/${encodeURIComponent(id)}`, {
     method: "DELETE",
   });
 }
 
-export async function setCompletion(
-  habitId: string,
-  date: string,
-  present: boolean,
-): Promise<Habit> {
+type SetCompletionParams = {
+  habitId: string;
+  date: string;
+  present: boolean;
+};
+
+export async function setCompletion({
+  habitId,
+  date,
+  present,
+}: SetCompletionParams): Promise<Habit> {
   return habitFromApi(
     await requestJson(
       `${HABITS_ENDPOINT}/${encodeURIComponent(habitId)}/completions/${encodeURIComponent(date)}`,
@@ -37,7 +59,13 @@ export async function setCompletion(
   );
 }
 
-export async function recordRelapse(habitId: string): Promise<Habit> {
+type RecordRelapseParams = {
+  habitId: string;
+};
+
+export async function recordRelapse({
+  habitId,
+}: RecordRelapseParams): Promise<Habit> {
   return habitFromApi(
     await requestJson(
       `${HABITS_ENDPOINT}/${encodeURIComponent(habitId)}/relapses`,

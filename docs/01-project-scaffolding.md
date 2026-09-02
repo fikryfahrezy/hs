@@ -141,7 +141,6 @@ Runtime dependencies:
 - `cookie-parser`
 - `helmet`
 - `argon2` for the specified Argon2id password hashing contract
-- Nest throttling support for authentication endpoints
 
 Development dependencies:
 

@@ -79,9 +79,12 @@ export function HabitCard({ habit }: { habit: Habit }) {
               <Button
                 disabled={relapse.isPending}
                 onClick={() =>
-                  relapse.mutate(habit.id, {
-                    onSuccess: () => setConfirmingRelapse(false),
-                  })
+                  relapse.mutate(
+                    { habitId: habit.id },
+                    {
+                      onSuccess: () => setConfirmingRelapse(false),
+                    },
+                  )
                 }
               >
                 Record relapse
@@ -109,7 +112,7 @@ export function HabitCard({ habit }: { habit: Habit }) {
           </Button>
           <Button
             disabled={deletion.isPending}
-            onClick={() => deletion.mutate(habit.id)}
+            onClick={() => deletion.mutate({ id: habit.id })}
           >
             Confirm delete
           </Button>

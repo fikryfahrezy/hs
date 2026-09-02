@@ -33,7 +33,7 @@ export function DashboardPage() {
   });
   const submit = handleSubmit(async (input) => {
     try {
-      await creation.mutateAsync(input);
+      await creation.mutateAsync({ input });
       reset();
     } catch {
       // Mutation feedback remains visible and the form values are retained.
@@ -46,6 +46,13 @@ export function DashboardPage() {
 
   return (
     <AppShell
+      navigation={
+        <nav className="primary-navigation" aria-label="Primary">
+          <a href="#today">Today</a>
+          <a href="#habits">Habits</a>
+          <a href="#goals">Goals</a>
+        </nav>
+      }
       action={
         <Button
           variant="secondary"
@@ -56,13 +63,17 @@ export function DashboardPage() {
         </Button>
       }
     >
-      <main className="dashboard-page">
-        <header className="dashboard-hero">
+      <main className="dashboard-page" id="main-content">
+        <header className="dashboard-hero" id="today">
           <p className="eyebrow">Today</p>
           <h1>Your daily shape</h1>
           <p>Build what helps. Make space from what does not.</p>
         </header>
-        <section className="create-panel" aria-labelledby="create-title">
+        <section
+          className="create-panel"
+          id="habits"
+          aria-labelledby="create-title"
+        >
           <div>
             <p className="eyebrow">New habit</p>
             <h2 id="create-title">Shape one small action</h2>

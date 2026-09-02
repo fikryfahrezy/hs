@@ -30,7 +30,7 @@ remain the detailed engineering reference.
 - [x] Add the users migration and shared authentication contracts.
 - [x] Implement registration, login, session restoration, and logout.
 - [x] Implement Argon2id password hashing and signed HTTP-only cookie sessions.
-- [x] Add authentication throttling and protected-route behavior.
+- [x] Add protected-route behavior.
 - [x] Add unit, integration, component, and Playwright authentication tests.
 
 ## 3. Habit management and dashboard
@@ -67,16 +67,16 @@ remain the detailed engineering reference.
 
 ## 7. Hardening and submission readiness
 
-- [ ] Complete critical Playwright journeys through Compose and Nginx.
-- [ ] Review accessibility, keyboard behavior, focus management, responsive
+- [x] Complete critical Playwright journeys through Compose and Nginx.
+- [x] Review accessibility, keyboard behavior, focus management, responsive
       layout, and reduced motion.
-- [ ] Review validation, security headers, cookies, throttling, ownership,
+- [x] Review validation, security headers, cookies, ownership,
       secret handling, and safe logging.
-- [ ] Verify migrations on a fresh database and persistence after restart.
-- [ ] Finish `README.md` setup, operation, testing, and troubleshooting steps.
-- [ ] Run formatting, linting, type-checking, unit, integration, build, and E2E
+- [x] Verify migrations on a fresh database and persistence after restart.
+- [x] Finish `README.md` setup, operation, testing, and troubleshooting steps.
+- [x] Run formatting, linting, type-checking, unit, integration, build, and E2E
       validation.
-- [ ] Inspect the final repository and containers for secrets, generated files,
+- [x] Inspect the final repository and containers for secrets, generated files,
       development dependencies, and other unintended artifacts.
-- [ ] Change the implementation plan and technical specification to
+- [x] Change the implementation plan and technical specification to
       `Implemented` only after the shipped behavior matches them.

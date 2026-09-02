@@ -1,111 +1,85 @@
 # Habit Shaper
 
-Habit Shaper is a lightweight web application for building positive daily
-habits, breaking unwanted habits, and linking simple goals to either kind of
-habit.
+A full-stack habit tracker for build habits, break habits, weekly progress, and
+goals linked to either habit type.
 
-## AI assistance disclosure
+## Quick start
 
-This project was planned and implemented with assistance from OpenAI Codex
-using GPT-5.6-Sol with High reasoning effort.
-
-## Run with Docker Compose
-
-Only Docker and Docker Compose are required. From a fresh clone, run:
+Requires Docker with Compose:
 
 ```sh
 docker compose up
 ```
 
-Open <http://localhost:8080>. Compose builds the web and API images, starts
-MySQL, applies every pending migration, and exposes the application through
-Nginx. No `.env` file is required for local evaluation.
+Open <http://localhost:8080>. Compose starts MySQL, applies pending migrations,
+builds the API and web applications, and serves both through Nginx. Local data
+is stored in the `mysql-data` volume; `docker compose down` preserves it.
 
-To rebuild after changing application code:
+Use `APP_PORT` or `MYSQL_PORT` to override ports 8080 or 3306.
 
-```sh
-docker compose up --build
-```
+## Host development
 
-Stop the stack while preserving database data:
-
-```sh
-docker compose down
-```
-
-Remove the local database volume for a completely fresh start:
-
-```sh
-docker compose down --volumes
-```
-
-Local Compose provides all development values, so it does not use an environment
-file. The committed `.env.example` files document the values required for
-deployment and for host-run development servers.
-
-## Environment files
-
-Every `.env` file is git-ignored; only the `.env.example` templates are
-committed. Copy the ones you need:
-
-| Template                | Copy to         | Needed for                                                      |
-| ----------------------- | --------------- | --------------------------------------------------------------- |
-| `.env.example`          | `.env`          | `npm run db:*` (Dbmate) and `compose.deploy.yaml` deployments.  |
-| `apps/api/.env.example` | `apps/api/.env` | `npm run dev` — the API refuses to boot without these values.   |
-| `apps/web/.env.example` | `apps/web/.env` | Optional Vite dev server overrides (port, `/api` proxy target). |
-
-`docker compose up` needs none of them.
-
-Values already present in the process environment always win over a `.env`
-file, so Compose and CI stay authoritative.
-
-## Local development
-
-The repository pins Node.js 24.20.0 and npm 11.19.0. From a fresh clone:
+Requires Node.js 24.20.0, npm 11.19.0, and MySQL 8.4.
 
 ```sh
 npm ci
 cp .env.example .env
 cp apps/api/.env.example apps/api/.env
-# point DATABASE_URL in both files at your MySQL 8.4 instance
 npm run db:migrate
 npm run dev
 ```
 
-Without `apps/api/.env` the API exits immediately: `getAppConfig()` validates
-every variable at startup and throws on the first missing one.
+Set both `DATABASE_URL` values for the local MySQL instance. The web application
+runs at <http://localhost:5173> and proxies `/api` to port 3000.
 
-The web dev server listens on <http://localhost:5173> and proxies `/api` to the
-API on port 3000. The production-like Compose path remains the authoritative
-integration boundary.
+Environment templates:
+
+| Template                | Consumer                                    |
+| ----------------------- | ------------------------------------------- |
+| `.env.example`          | Dbmate and the deployment Compose file.     |
+| `apps/api/.env.example` | Host-run NestJS API.                        |
+| `apps/web/.env.example` | Optional Vite port and API proxy overrides. |
 
 ## Validation
 
-Run the fast repository checks:
-
 ```sh
-npm run validate
+npm run validate             # format, lint, types, unit tests, and builds
+npm run test:api:integration # requires a migrated MySQL database
+npm run test:e2e             # requires a healthy Compose stack
 ```
 
-Run API integration tests against a migrated MySQL database:
+## Deployment
 
-```sh
-npm run test:api:integration
-```
+[`compose.deploy.yaml`](./compose.deploy.yaml) expects an external MySQL
+database and these values:
 
-Run browser tests while the Compose stack is healthy:
+| Variable        | Requirement                                        |
+| --------------- | -------------------------------------------------- |
+| `DATABASE_URL`  | MySQL URL used by migrations and the API.          |
+| `JWT_SECRET`    | Signing secret containing at least 32 bytes.       |
+| `COOKIE_SECURE` | Optional cookie `Secure` flag; defaults to `true`. |
 
-```sh
-npm run test:e2e
-```
+Route external traffic to the `web` service on port 8080. The API is internal
+and exposed only through Nginx at `/api`.
+
+## Implementation notes
+
+- React/Vite frontend, NestJS API, MySQL, and shared Zod contracts.
+- Authentication uses Argon2id and a signed HTTP-only, SameSite=Lax cookie.
+- Resource queries enforce ownership in SQL. Dbmate migrations are the schema
+  source of truth.
 
 ## Repository layout
 
-- `apps/web`: React and Vite frontend.
-- `apps/api`: NestJS API and MySQL repositories.
-- `packages/contracts`: shared Zod transport contracts.
-- `db/migrations`: forward Dbmate migrations with reversible down sections.
-- `tests/e2e`: Playwright tests against the Nginx entrypoint.
-- `infra/nginx`: same-origin static serving and `/api` proxy configuration.
-- `docs`: product and engineering decisions.
-- `.env.example`: environment templates, at the root and inside each app.
+- `apps/web`: frontend application.
+- `apps/api`: API and MySQL repositories.
+- `packages/contracts`: shared request and response contracts.
+- `db/migrations`: database migrations.
+- `tests/e2e`: Playwright journeys through Nginx.
+- `infra`: Nginx and migration container configuration.
+- `docs`: architecture, conventions, and implementation plan.
+
+## AI assistance
+
+The project was planned and implemented with OpenAI Codex using GPT-5.6-Sol
+with High reasoning effort.

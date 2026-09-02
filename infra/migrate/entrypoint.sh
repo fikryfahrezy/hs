@@ -11,4 +11,5 @@ fi
 
 exec node /opt/dbmate/dist/cli.js \
   --migrations-dir /workspace/db/migrations \
+  --no-dump-schema \
   "$@"

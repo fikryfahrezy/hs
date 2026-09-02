@@ -1,6 +1,6 @@
 # Product Implementation Plan
 
-> Status: Ready
+> Status: Implemented
 
 ## Outcome
 
@@ -621,7 +621,7 @@ Work:
 - Review accessibility, keyboard behavior, focus management, responsive layout,
   and reduced-motion behavior.
 - Review validation, error mapping, logs, security headers, cookie settings,
-  request throttling, ownership queries, and secret handling.
+  ownership queries, and secret handling.
 - Verify migrations against a fresh database volume and service restart against
   an existing volume.
 - Finish the root and per-application `.env.example` templates plus the README

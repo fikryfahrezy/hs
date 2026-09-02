@@ -52,7 +52,6 @@ services:
       JWT_SECRET: ${JWT_SECRET:-local-only-secret-change-before-production}
       NODE_ENV: ${NODE_ENV:-development}
       PORT: 3000
-      WEB_ORIGIN: ${WEB_ORIGIN:-http://localhost:8080}
     depends_on:
       migrate:
         condition: service_completed_successfully

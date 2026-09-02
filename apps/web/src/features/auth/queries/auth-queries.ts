@@ -15,19 +15,27 @@ export function useSessionQuery() {
   return useQuery({ queryKey: authQueryKeys.session, queryFn: getSession });
 }
 
+type LoginMutationParams = {
+  input: LoginRequest;
+};
+
 export function useLoginMutation() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (input: LoginRequest) => login(input),
+    mutationFn: ({ input }: LoginMutationParams) => login(input),
     onSuccess: (user) =>
       queryClient.setQueryData<SessionUser>(authQueryKeys.session, user),
   });
 }
 
+type RegisterMutationParams = {
+  input: RegisterRequest;
+};
+
 export function useRegisterMutation() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (input: RegisterRequest) => register(input),
+    mutationFn: ({ input }: RegisterMutationParams) => register(input),
     onSuccess: (user) =>
       queryClient.setQueryData<SessionUser>(authQueryKeys.session, user),
   });

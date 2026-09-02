@@ -1,5 +1,4 @@
 const SESSION_LIFETIME_SECONDS = 7 * 24 * 60 * 60;
-const THROTTLE_WINDOW_MS = 15 * 60 * 1000;
 
 export const AUTH_POLICY = {
   token: {
@@ -14,10 +13,5 @@ export const AUTH_POLICY = {
     name: "hs_session",
     path: "/",
     sameSite: "lax",
-  },
-  throttle: {
-    loginAttempts: 10,
-    registrationAttempts: 5,
-    windowMs: THROTTLE_WINDOW_MS,
   },
 } as const;

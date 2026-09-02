@@ -80,7 +80,7 @@ export function GoalManager({ habits }: { habits: Habit[] }) {
         await update.mutateAsync({ id: editingId, input });
         setAnnouncement("Goal updated.");
       } else {
-        await creation.mutateAsync(input);
+        await creation.mutateAsync({ input });
         setAnnouncement("Goal added.");
       }
       finishEditing();
@@ -203,12 +203,15 @@ export function GoalManager({ habits }: { habits: Habit[] }) {
                     <Button
                       disabled={deletion.isPending}
                       onClick={() =>
-                        deletion.mutate(goal.id, {
-                          onSuccess: () => {
-                            setConfirmingId(null);
-                            setAnnouncement("Goal deleted.");
+                        deletion.mutate(
+                          { id: goal.id },
+                          {
+                            onSuccess: () => {
+                              setConfirmingId(null);
+                              setAnnouncement("Goal deleted.");
+                            },
                           },
-                        })
+                        )
                       }
                     >
                       Confirm delete

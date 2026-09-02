@@ -12,21 +12,32 @@ import { goalQueryKeys } from "#app/features/goals/queries/goal-queries";
 export const habitQueryKeys = { all: ["habits"] as const };
 
 export function useHabitsQuery() {
-  return useQuery({ queryKey: habitQueryKeys.all, queryFn: listHabits });
+  return useQuery({
+    queryKey: habitQueryKeys.all,
+    queryFn: ({ signal }) => listHabits({ signal }),
+  });
 }
+
+type CreateHabitMutationParams = {
+  input: CreateHabitRequest;
+};
 
 export function useCreateHabitMutation() {
   const client = useQueryClient();
   return useMutation({
-    mutationFn: (input: CreateHabitRequest) => createHabit(input),
+    mutationFn: (params: CreateHabitMutationParams) => createHabit(params),
     onSuccess: () => client.invalidateQueries({ queryKey: habitQueryKeys.all }),
   });
 }
 
+type DeleteHabitMutationParams = {
+  id: string;
+};
+
 export function useDeleteHabitMutation() {
   const client = useQueryClient();
   return useMutation({
-    mutationFn: deleteHabit,
+    mutationFn: (params: DeleteHabitMutationParams) => deleteHabit(params),
     onSuccess: async () => {
       await Promise.all([
         client.invalidateQueries({ queryKey: habitQueryKeys.all }),
@@ -36,19 +47,28 @@ export function useDeleteHabitMutation() {
   });
 }
 
+type CompletionMutationParams = {
+  habitId: string;
+  date: string;
+  present: boolean;
+};
+
 export function useCompletionMutation() {
   const client = useQueryClient();
   return useMutation({
-    mutationFn: (input: { habitId: string; date: string; present: boolean }) =>
-      setCompletion(input.habitId, input.date, input.present),
+    mutationFn: (params: CompletionMutationParams) => setCompletion(params),
     onSuccess: () => client.invalidateQueries({ queryKey: habitQueryKeys.all }),
   });
 }
 
+type RelapseMutationParams = {
+  habitId: string;
+};
+
 export function useRelapseMutation() {
   const client = useQueryClient();
   return useMutation({
-    mutationFn: recordRelapse,
+    mutationFn: (params: RelapseMutationParams) => recordRelapse(params),
     onSuccess: () => client.invalidateQueries({ queryKey: habitQueryKeys.all }),
   });
 }

@@ -6,15 +6,23 @@ const booleanFromEnvironment = z
   .enum(["true", "false"])
   .transform((value) => value === "true");
 
+export const NODE_ENVIRONMENT = {
+  DEVELOPMENT: "development",
+  TEST: "test",
+  PRODUCTION: "production",
+} as const;
+
 const AppConfigSchema = z.object({
-  nodeEnv: z.enum(["development", "test", "production"]),
+  nodeEnv: z.enum(NODE_ENVIRONMENT),
   port: z.coerce.number().int().min(1).max(65_535),
   databaseUrl: z.url().startsWith("mysql://"),
   jwtSecret: z
     .string({ error: "JWT_SECRET is required." })
-    .min(32, "JWT_SECRET must contain at least 32 characters."),
+    .refine(
+      (secret) => Buffer.byteLength(secret, "utf8") >= 32,
+      "JWT_SECRET must contain at least 32 bytes.",
+    ),
   cookieSecure: booleanFromEnvironment,
-  webOrigin: z.url(),
 });
 
 export type AppConfig = z.infer<typeof AppConfigSchema>;
@@ -43,7 +51,6 @@ export function parseAppConfig(environment: NodeJS.ProcessEnv): AppConfig {
     databaseUrl: environment.DATABASE_URL,
     jwtSecret: environment.JWT_SECRET,
     cookieSecure: environment.COOKIE_SECURE,
-    webOrigin: environment.WEB_ORIGIN,
   });
 }
 

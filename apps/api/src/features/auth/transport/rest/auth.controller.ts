@@ -8,7 +8,6 @@ import {
   Res,
   UseGuards,
 } from "@nestjs/common";
-import { Throttle } from "@nestjs/throttler";
 import {
   LoginRequestSchema,
   RegisterRequestSchema,
@@ -42,12 +41,6 @@ export class AuthController {
   ) {}
 
   @Post("register")
-  @Throttle({
-    default: {
-      limit: AUTH_POLICY.throttle.registrationAttempts,
-      ttl: AUTH_POLICY.throttle.windowMs,
-    },
-  })
   public async register(
     @Body() body: unknown,
     @Res({ passthrough: true }) response: Response,
@@ -64,12 +57,6 @@ export class AuthController {
 
   @Post("login")
   @HttpCode(HttpStatus.OK)
-  @Throttle({
-    default: {
-      limit: AUTH_POLICY.throttle.loginAttempts,
-      ttl: AUTH_POLICY.throttle.windowMs,
-    },
-  })
   public async login(
     @Body() body: unknown,
     @Res({ passthrough: true }) response: Response,

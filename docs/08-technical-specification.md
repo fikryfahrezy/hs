@@ -1,6 +1,6 @@
 # Technical Specification
 
-> Status: Ready
+> Status: Implemented
 
 ## Purpose
 
@@ -506,14 +506,14 @@ pins the expected algorithm, issuer, and audience.
 
 ### Cookie
 
-| Attribute  | Value                                                                                                              |
-| ---------- | ------------------------------------------------------------------------------------------------------------------ |
-| Name       | `hs_session`                                                                                                       |
-| `HttpOnly` | `true`                                                                                                             |
-| `SameSite` | `Lax`                                                                                                              |
-| `Path`     | `/`                                                                                                                |
-| `Max-Age`  | Seven days, matching the token lifetime                                                                            |
-| `Secure`   | Controlled by validated `COOKIE_SECURE`; `false` for documented local HTTP Compose and `true` for HTTPS deployment |
+| Attribute  | Value                                                                                                                        |
+| ---------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| Name       | `hs_session`                                                                                                                 |
+| `HttpOnly` | `true`                                                                                                                       |
+| `SameSite` | `Lax`                                                                                                                        |
+| `Path`     | `/`                                                                                                                          |
+| `Max-Age`  | Seven days, matching the token lifetime                                                                                      |
+| `Secure`   | Controlled by validated `COOKIE_SECURE`; local Compose uses `false`, while deployment defaults to `true` but may override it |
 
 The frontend sends same-origin credentials through the centralized API client.
 The token is never exposed to JavaScript or stored in local storage.
@@ -523,15 +523,6 @@ SameSite cookies, JSON-only mutation bodies, and the same-origin deployment are
 the MVP cross-site request protections. If the API is later served cross-origin,
 explicit origin and CSRF controls must be designed before changing cookie
 settings.
-
-### Authentication throttling
-
-- Registration: five requests per 15 minutes per source IP.
-- Login: ten requests per 15 minutes per source IP.
-- Return `429 RATE_LIMITED` when a limit is exceeded.
-
-The limits protect the public credential endpoints without adding CAPTCHA or an
-account-lockout workflow to the MVP.
 
 ## REST contracts
 
@@ -575,9 +566,8 @@ Success: `201 Created`, sets `hs_session`, returns `UserResponse`.
 
 Failures:
 
-- `400 VALIDATION_ERROR` for invalid fields;
-- `409 EMAIL_ALREADY_EXISTS` for a normalized duplicate; and
-- `429 RATE_LIMITED` when throttled.
+- `400 VALIDATION_ERROR` for invalid fields; and
+- `409 EMAIL_ALREADY_EXISTS` for a normalized duplicate.
 
 The database unique index remains the final concurrency-safe duplicate check.
 
@@ -847,7 +837,6 @@ type ErrorResponse = {
       | "RESOURCE_NOT_FOUND"
       | "INVALID_HABIT_TYPE_OPERATION"
       | "DATE_NOT_ELIGIBLE"
-      | "RATE_LIMITED"
       | "INTERNAL_ERROR";
     message: string;
     field_errors?: Record<string, string[]>;
@@ -863,7 +852,6 @@ Status mapping:
 | `401 Unauthorized`          | `AUTHENTICATION_REQUIRED`, `INVALID_CREDENTIALS`                            |
 | `404 Not Found`             | `RESOURCE_NOT_FOUND`                                                        |
 | `409 Conflict`              | `EMAIL_ALREADY_EXISTS`, `INVALID_HABIT_TYPE_OPERATION`, `DATE_NOT_ELIGIBLE` |
-| `429 Too Many Requests`     | `RATE_LIMITED`                                                              |
 | `500 Internal Server Error` | `INTERNAL_ERROR`                                                            |
 
 Example validation failure:
@@ -1074,14 +1062,13 @@ from the same query.
 
 The API validates required environment values at startup:
 
-| Variable        | Purpose                                                            |
-| --------------- | ------------------------------------------------------------------ |
-| `NODE_ENV`      | Explicit runtime mode.                                             |
-| `PORT`          | Internal API listening port.                                       |
-| `DATABASE_URL`  | MySQL connection used by the API.                                  |
-| `JWT_SECRET`    | Token-signing secret of at least 32 bytes.                         |
-| `COOKIE_SECURE` | Explicit boolean controlling the cookie `Secure` flag.             |
-| `WEB_ORIGIN`    | Expected same-origin public application URL for deployment checks. |
+| Variable        | Purpose                                                |
+| --------------- | ------------------------------------------------------ |
+| `NODE_ENV`      | Explicit runtime mode.                                 |
+| `PORT`          | Internal API listening port.                           |
+| `DATABASE_URL`  | MySQL connection used by the API.                      |
+| `JWT_SECRET`    | Token-signing secret of at least 32 bytes.             |
+| `COOKIE_SECURE` | Explicit boolean controlling the cookie `Secure` flag. |
 
 The migration service receives its own `DATABASE_URL` using the same database
 credentials or a deliberately scoped migration credential. Local Compose

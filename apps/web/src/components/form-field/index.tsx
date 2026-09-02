@@ -14,8 +14,8 @@ type FormFieldProps = InputHTMLAttributes<HTMLInputElement> & {
 export function FormField({ error, id, label, ...input }: FormFieldProps) {
   const errorId = error && id ? `${id}-error` : undefined;
   return (
-    <label className="form-field" htmlFor={id}>
-      <span>{label}</span>
+    <div className="form-field">
+      <label htmlFor={id}>{label}</label>
       <input
         aria-describedby={errorId}
         aria-invalid={Boolean(error)}
@@ -27,7 +27,7 @@ export function FormField({ error, id, label, ...input }: FormFieldProps) {
           {error}
         </span>
       ) : null}
-    </label>
+    </div>
   );
 }
 
@@ -45,8 +45,8 @@ export function SelectField({
 }: SelectFieldProps) {
   const errorId = error && id ? `${id}-error` : undefined;
   return (
-    <label className="form-field" htmlFor={id}>
-      <span>{label}</span>
+    <div className="form-field">
+      <label htmlFor={id}>{label}</label>
       <select
         aria-describedby={errorId}
         aria-invalid={Boolean(error)}
@@ -60,7 +60,7 @@ export function SelectField({
           {error}
         </span>
       ) : null}
-    </label>
+    </div>
   );
 }
 
@@ -77,8 +77,8 @@ export function TextareaField({
 }: TextareaFieldProps) {
   const errorId = error && id ? `${id}-error` : undefined;
   return (
-    <label className="form-field" htmlFor={id}>
-      <span>{label}</span>
+    <div className="form-field">
+      <label htmlFor={id}>{label}</label>
       <textarea
         aria-describedby={errorId}
         aria-invalid={Boolean(error)}
@@ -90,6 +90,6 @@ export function TextareaField({
           {error}
         </span>
       ) : null}
-    </label>
+    </div>
   );
 }

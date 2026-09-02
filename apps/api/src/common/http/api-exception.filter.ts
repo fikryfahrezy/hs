@@ -6,7 +6,6 @@ import {
   Logger,
   type ExceptionFilter,
 } from "@nestjs/common";
-import { ThrottlerException } from "@nestjs/throttler";
 import {
   ERROR_CODE,
   type ErrorCode,
@@ -52,26 +51,46 @@ export class ApiExceptionFilter implements ExceptionFilter {
       return;
     }
 
-    if (exception instanceof ThrottlerException) {
-      sendError(
-        response,
-        HttpStatus.TOO_MANY_REQUESTS,
-        ERROR_CODE.RATE_LIMITED,
-        "Too many attempts. Please try again later.",
-      );
-      return;
-    }
-
     if (exception instanceof HttpException) {
       const status = exception.getStatus();
-      const notFound = status === HttpStatus.NOT_FOUND;
+      if (
+        status === HttpStatus.BAD_REQUEST ||
+        status === HttpStatus.PAYLOAD_TOO_LARGE
+      ) {
+        sendError(
+          response,
+          HttpStatus.BAD_REQUEST,
+          ERROR_CODE.VALIDATION_ERROR,
+          "Check the request and try again.",
+          { request: ["Send a valid JSON request within the size limit."] },
+        );
+        return;
+      }
+      if (status === HttpStatus.NOT_FOUND) {
+        sendError(
+          response,
+          status,
+          ERROR_CODE.RESOURCE_NOT_FOUND,
+          "The requested resource was not found.",
+        );
+        return;
+      }
+      if (status === HttpStatus.UNAUTHORIZED) {
+        sendError(
+          response,
+          status,
+          ERROR_CODE.AUTHENTICATION_REQUIRED,
+          "Sign in to continue.",
+        );
+        return;
+      }
+
+      this.logger.warn(`Unhandled HTTP exception with status ${status}.`);
       sendError(
         response,
-        status,
-        notFound ? ERROR_CODE.RESOURCE_NOT_FOUND : ERROR_CODE.INTERNAL_ERROR,
-        notFound
-          ? "The requested resource was not found."
-          : "The request could not be completed.",
+        HttpStatus.INTERNAL_SERVER_ERROR,
+        ERROR_CODE.INTERNAL_ERROR,
+        "The request could not be completed.",
       );
       return;
     }

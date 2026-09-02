@@ -26,7 +26,7 @@ export function LoginPage() {
 
   const submit = handleSubmit(async (input) => {
     try {
-      await mutation.mutateAsync(input);
+      await mutation.mutateAsync({ input });
       navigate(dashboardRoute.to(), { replace: true });
     } catch {
       // The mutation state renders the normalized error while preserving inputs.
@@ -35,7 +35,7 @@ export function LoginPage() {
 
   return (
     <AppShell>
-      <main className="auth-page">
+      <main className="auth-page" id="main-content">
         <section className="auth-card" aria-labelledby="login-title">
           <p className="eyebrow">Welcome back</p>
           <h1 id="login-title">Sign in</h1>

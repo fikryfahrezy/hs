@@ -87,4 +87,14 @@ describe("authentication endpoints", () => {
     expect(wrongPassword.body).toEqual(unknown.body);
     expect(unknown.body.error.code).toBe("INVALID_CREDENTIALS");
   });
+
+  it("maps malformed JSON to the public validation contract", async () => {
+    const response = await request(app.getHttpServer())
+      .post("/api/auth/login")
+      .set("Content-Type", "application/json")
+      .send('{"email":')
+      .expect(400);
+
+    expect(response.body.error.code).toBe("VALIDATION_ERROR");
+  });
 });

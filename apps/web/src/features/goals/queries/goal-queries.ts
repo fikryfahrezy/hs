@@ -14,30 +14,45 @@ import {
 export const goalQueryKeys = { all: ["goals"] as const };
 
 export function useGoalsQuery() {
-  return useQuery({ queryKey: goalQueryKeys.all, queryFn: listGoals });
+  return useQuery({
+    queryKey: goalQueryKeys.all,
+    queryFn: ({ signal }) => listGoals({ signal }),
+  });
 }
+
+type CreateGoalMutationParams = {
+  input: CreateGoalRequest;
+};
 
 export function useCreateGoalMutation() {
   const client = useQueryClient();
   return useMutation({
-    mutationFn: (input: CreateGoalRequest) => createGoal(input),
+    mutationFn: (params: CreateGoalMutationParams) => createGoal(params),
     onSuccess: () => client.invalidateQueries({ queryKey: goalQueryKeys.all }),
   });
 }
+
+type UpdateGoalMutationParams = {
+  id: string;
+  input: UpdateGoalRequest;
+};
 
 export function useUpdateGoalMutation() {
   const client = useQueryClient();
   return useMutation({
-    mutationFn: (request: { id: string; input: UpdateGoalRequest }) =>
-      updateGoal(request.id, request.input),
+    mutationFn: (params: UpdateGoalMutationParams) => updateGoal(params),
     onSuccess: () => client.invalidateQueries({ queryKey: goalQueryKeys.all }),
   });
 }
 
+type DeleteGoalMutationParams = {
+  id: string;
+};
+
 export function useDeleteGoalMutation() {
   const client = useQueryClient();
   return useMutation({
-    mutationFn: deleteGoal,
+    mutationFn: (params: DeleteGoalMutationParams) => deleteGoal(params),
     onSuccess: () => client.invalidateQueries({ queryKey: goalQueryKeys.all }),
   });
 }
