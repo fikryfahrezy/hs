@@ -10,6 +10,8 @@ services:
       DATABASE_URL: ${DATABASE_URL:?DATABASE_URL is required}
     command: ["--wait", "--wait-timeout", "2m", "up"]
     restart: "no"
+    extra_hosts:
+      - host.docker.internal:host-gateway
 
   api:
     build:
@@ -39,6 +41,8 @@ services:
       timeout: 5s
       retries: 12
       start_period: 10s
+    extra_hosts:
+      - host.docker.internal:host-gateway
 
   web:
     build:
