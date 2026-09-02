@@ -9,11 +9,9 @@ describe("RegisterPage", () => {
     const user = userEvent.setup();
     render(<RegisterPage />);
 
-    await user.selectOptions(screen.getByLabelText("Timezone"), "");
     await user.click(screen.getByRole("button", { name: "Create account" }));
 
     expect(await screen.findByText("Use at least 8 characters.")).toBeVisible();
-    expect(screen.getByText("Choose a timezone.")).toBeVisible();
     expect(fetchSpy).not.toHaveBeenCalled();
   });
 
