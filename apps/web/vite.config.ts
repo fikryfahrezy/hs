@@ -29,5 +29,29 @@ export default defineConfig(({ mode }) => {
           environment.VITE_DEV_API_PROXY_TARGET || DEFAULT_DEV_API_PROXY_TARGET,
       },
     },
+    optimizeDeps: {
+      // `@habit-shaper/contracts` builds to CommonJS; pre-bundling it lets
+      // esbuild convert it to ESM so its named exports resolve in the browser.
+      include: ["@habit-shaper/contracts"],
+    },
+    build: {
+      rollupOptions: {
+        output: {
+          // Split framework code into its own cacheable chunks instead of one
+          // large bundle named after whichever module rollup picks first.
+          manualChunks(id) {
+            if (!id.includes("node_modules")) return;
+            if (/[\\/](react|react-dom|react-router-dom)[\\/]/.test(id)) {
+              return "vendor-react";
+            }
+            if (id.includes("@tanstack/react-query")) return "vendor-query";
+            if (/[\\/]zod[\\/]/.test(id)) return "vendor-zod";
+            if (/[\\/](react-hook-form|@hookform)[\\/]/.test(id)) {
+              return "vendor-form";
+            }
+          },
+        },
+      },
+    },
   };
 });
