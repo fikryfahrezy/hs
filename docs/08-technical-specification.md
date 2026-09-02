@@ -1084,9 +1084,23 @@ The API validates required environment values at startup:
 | `WEB_ORIGIN`    | Expected same-origin public application URL for deployment checks. |
 
 The migration service receives its own `DATABASE_URL` using the same database
-credentials or a deliberately scoped migration credential. `.env.example`
-contains only the non-secret placeholders required by the deployment Compose
-file. Local Compose supplies its development values directly.
+credentials or a deliberately scoped migration credential. Local Compose
+supplies its development values directly and needs no environment file.
+
+Three committed `.env.example` templates cover every other path; each `.env`
+copy stays git-ignored:
+
+| Template                | Copy to         | Consumer                                                        |
+| ----------------------- | --------------- | --------------------------------------------------------------- |
+| `.env.example`          | `.env`          | Dbmate (`npm run db:*`) and `compose.deploy.yaml`.              |
+| `apps/api/.env.example` | `apps/api/.env` | The API variables above when running `npm run dev` on the host. |
+| `apps/web/.env.example` | `apps/web/.env` | Optional Vite dev server port and `/api` proxy overrides.       |
+
+`AppModule` imports `ConfigModule.forRoot()` before any other module, so
+`apps/api/.env` is assigned into `process.env` before `getAppConfig()` validates
+it during bootstrap. Variables already set in the process environment take
+precedence, so Compose, CI, and deployment remain authoritative. Every template
+contains non-secret placeholders only.
 
 ## Observability and security behavior
 

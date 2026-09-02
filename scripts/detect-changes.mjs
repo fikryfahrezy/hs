@@ -36,7 +36,7 @@ const e2ePatterns = [
   /^compose(?:\.deploy)?\.yaml$/,
   /Dockerfile$/,
   /^\.dockerignore$/,
-  /^\.env\.example$/,
+  /(?:^|\/)\.env\.example$/,
   /^package(?:-lock)?\.json$/,
   /^\.github\/workflows\/ci\.yaml$/,
 ];

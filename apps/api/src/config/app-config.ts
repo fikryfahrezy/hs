@@ -1,3 +1,5 @@
+import { existsSync } from "node:fs";
+import { resolve } from "node:path";
 import { z } from "zod";
 
 const booleanFromEnvironment = z
@@ -19,6 +21,21 @@ export type AppConfig = z.infer<typeof AppConfigSchema>;
 
 let cachedConfig: AppConfig | undefined;
 
+/**
+ * Loads `apps/api/.env` into `process.env` for host-run development.
+ *
+ * Variables already present in the environment take precedence, so Compose, CI,
+ * and deployment stay authoritative. A missing file is expected in containers,
+ * where every value is supplied directly. See `apps/api/.env.example`.
+ */
+function loadEnvironmentFile(): void {
+  const envFilePath = resolve(process.cwd(), ".env");
+
+  if (existsSync(envFilePath)) {
+    process.loadEnvFile(envFilePath);
+  }
+}
+
 export function parseAppConfig(environment: NodeJS.ProcessEnv): AppConfig {
   return AppConfigSchema.parse({
     nodeEnv: environment.NODE_ENV,
@@ -31,7 +48,10 @@ export function parseAppConfig(environment: NodeJS.ProcessEnv): AppConfig {
 }
 
 export function getAppConfig(): AppConfig {
-  cachedConfig ??= parseAppConfig(process.env);
+  if (cachedConfig === undefined) {
+    loadEnvironmentFile();
+    cachedConfig = parseAppConfig(process.env);
+  }
 
   return cachedConfig;
 }

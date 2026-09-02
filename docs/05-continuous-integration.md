@@ -151,7 +151,7 @@ compose.yaml
 compose.deploy.yaml
 **/Dockerfile
 .dockerignore
-.env.example
+**/.env.example
 package.json
 package-lock.json
 .github/workflows/ci.yaml

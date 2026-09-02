@@ -16,10 +16,12 @@ habit-shaper/
 │   │   ├── src/
 │   │   ├── test/
 │   │   ├── Dockerfile
+│   │   ├── .env.example
 │   │   └── package.json
 │   └── web/
 │       ├── src/
 │       ├── Dockerfile
+│       ├── .env.example
 │       └── package.json
 ├── packages/
 │   └── contracts/
@@ -183,24 +185,24 @@ scope are defined in [Testing strategy](./06-testing-strategy.md).
 
 The root `package.json` should provide a predictable interface:
 
-| Command                        | Responsibility                                                                            |
-| ------------------------------ | ----------------------------------------------------------------------------------------- |
-| `npm run dev`                  | Start web and API development processes; database infrastructure may run through Compose. |
-| `npm run build`                | Build contracts first, followed by API and web.                                           |
-| `npm run typecheck`            | Type-check all TypeScript workspaces without emitting.                                    |
-| `npm run lint`                 | Run Oxlint across tracked source/config files.                                            |
-| `npm run lint:fix`             | Apply safe Oxlint fixes.                                                                  |
-| `npm run format`               | Apply Oxfmt.                                                                              |
-| `npm run format:check`         | Verify formatting without modifying files.                                                |
-| `npm run test:web`             | Run frontend Jest and React Testing Library tests.                                        |
-| `npm run test:api:unit`        | Run infrastructure-free API Jest tests.                                                   |
-| `npm run test:api:integration` | Run API and repository integration tests against migrated MySQL.                          |
-| `npm test`                     | Run fast frontend, contracts when applicable, and API unit suites.                        |
-| `npm run test:e2e`             | Run Playwright tests.                                                                     |
-| `npm run db:new -- <name>`     | Create a timestamped SQL migration with Dbmate.                                           |
-| `npm run db:migrate`           | Wait for MySQL and apply pending migrations.                                              |
-| `npm run db:rollback`          | Roll back the latest migration in development.                                            |
-| `npm run validate`             | Run formatting check, lint, type-check, unit tests, and builds.                           |
+| Command                        | Responsibility                                                                                    |
+| ------------------------------ | ------------------------------------------------------------------------------------------------- |
+| `npm run dev`                  | Start web and API development processes; requires `apps/api/.env` and a reachable MySQL instance. |
+| `npm run build`                | Build contracts first, followed by API and web.                                                   |
+| `npm run typecheck`            | Type-check all TypeScript workspaces without emitting.                                            |
+| `npm run lint`                 | Run Oxlint across tracked source/config files.                                                    |
+| `npm run lint:fix`             | Apply safe Oxlint fixes.                                                                          |
+| `npm run format`               | Apply Oxfmt.                                                                                      |
+| `npm run format:check`         | Verify formatting without modifying files.                                                        |
+| `npm run test:web`             | Run frontend Jest and React Testing Library tests.                                                |
+| `npm run test:api:unit`        | Run infrastructure-free API Jest tests.                                                           |
+| `npm run test:api:integration` | Run API and repository integration tests against migrated MySQL.                                  |
+| `npm test`                     | Run fast frontend, contracts when applicable, and API unit suites.                                |
+| `npm run test:e2e`             | Run Playwright tests.                                                                             |
+| `npm run db:new -- <name>`     | Create a timestamped SQL migration with Dbmate.                                                   |
+| `npm run db:migrate`           | Wait for MySQL and apply pending migrations.                                                      |
+| `npm run db:rollback`          | Roll back the latest migration in development.                                                    |
+| `npm run validate`             | Run formatting check, lint, type-check, unit tests, and builds.                                   |
 
 Commands should use explicit workspace names where build order matters rather
 than assuming glob order.
@@ -212,7 +214,9 @@ than assuming glob order.
 - Add root workspace metadata, Node/npm pinning, TypeScript base settings, and
   `.gitignore`.
 - Add a root `.npmrc` that enables exact dependency saving.
-- Add `.env.example` with documented placeholders only.
+- Add `.env.example` files with documented placeholders only: one at the root
+  for Dbmate and deployment Compose, and one per application for the host-run
+  development servers.
 - Preserve the supplied coding-test brief in the repository.
 - Install root tooling and generate the initial lockfile.
 
@@ -246,6 +250,10 @@ than assuming glob order.
 
 ### 5. Configure the NestJS foundation
 
+- Import `ConfigModule.forRoot()` first in `AppModule` so `apps/api/.env` is
+  assigned into `process.env` before `getAppConfig()` runs during bootstrap.
+  Existing process variables take precedence, keeping Compose and CI
+  authoritative.
 - Add configuration validation, global request validation, security headers,
   cookie parsing, consistent API prefixing, and graceful shutdown.
 - Keep REST controllers separate from transport-independent application use

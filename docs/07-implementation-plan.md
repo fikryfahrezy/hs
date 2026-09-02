@@ -624,8 +624,8 @@ Work:
   request throttling, ownership queries, and secret handling.
 - Verify migrations against a fresh database volume and service restart against
   an existing volume.
-- Finish `.env.example` and README setup, operation, test, and troubleshooting
-  instructions.
+- Finish the root and per-application `.env.example` templates plus the README
+  setup, operation, test, and troubleshooting instructions.
 - Run the complete local validation and inspect final container contents and
   health checks.
 - Review the repository diff and commit history for generated artifacts, real
@@ -641,7 +641,10 @@ Acceptance criteria:
 - All root validation, backend integration, and Playwright commands pass.
 - Critical journeys work at standard desktop and narrow mobile viewports.
 - README commands work when copied exactly.
-- `.env.example` contains placeholders only and no real secret is committed.
+- Every `.env.example` contains placeholders only and no real secret is
+  committed.
+- `npm run dev` works after copying the documented `.env.example` templates,
+  and the README states that requirement.
 
 ## Cross-cutting implementation rules
 

@@ -40,21 +40,44 @@ docker compose down --volumes
 ```
 
 Local Compose provides all development values, so it does not use an environment
-file. `.env.example` documents the values required for deployment.
+file. The committed `.env.example` files document the values required for
+deployment and for host-run development servers.
+
+## Environment files
+
+Every `.env` file is git-ignored; only the `.env.example` templates are
+committed. Copy the ones you need:
+
+| Template                | Copy to         | Needed for                                                      |
+| ----------------------- | --------------- | --------------------------------------------------------------- |
+| `.env.example`          | `.env`          | `npm run db:*` (Dbmate) and `compose.deploy.yaml` deployments.  |
+| `apps/api/.env.example` | `apps/api/.env` | `npm run dev` — the API refuses to boot without these values.   |
+| `apps/web/.env.example` | `apps/web/.env` | Optional Vite dev server overrides (port, `/api` proxy target). |
+
+`docker compose up` needs none of them.
+
+Values already present in the process environment always win over a `.env`
+file, so Compose and CI stay authoritative.
 
 ## Local development
 
-The repository pins Node.js 24.20.0 and npm 11.19.0. Install the exact locked
-dependencies and run both development servers with:
+The repository pins Node.js 24.20.0 and npm 11.19.0. From a fresh clone:
 
 ```sh
 npm ci
+cp .env.example .env
+cp apps/api/.env.example apps/api/.env
+# point DATABASE_URL in both files at your MySQL 8.4 instance
+npm run db:migrate
 npm run dev
 ```
 
-Local application development expects MySQL to be available through Compose or
-an equivalent MySQL 8.4 instance. The production-like Compose path remains the
-authoritative integration boundary.
+Without `apps/api/.env` the API exits immediately: `getAppConfig()` validates
+every variable at startup and throws on the first missing one.
+
+The web dev server listens on <http://localhost:5173> and proxies `/api` to the
+API on port 3000. The production-like Compose path remains the authoritative
+integration boundary.
 
 ## Validation
 
@@ -85,3 +108,4 @@ npm run test:e2e
 - `tests/e2e`: Playwright tests against the Nginx entrypoint.
 - `infra/nginx`: same-origin static serving and `/api` proxy configuration.
 - `docs`: product and engineering decisions.
+- `.env.example`: environment templates, at the root and inside each app.

@@ -16,6 +16,8 @@ remain the detailed engineering reference.
 - [x] Ensure a fresh clone starts with `docker compose up` without requiring an
       `.env` file.
 - [x] Add `.env.example` for optional overrides and production configuration.
+- [x] Add per-application `.env.example` templates and load `apps/api/.env`
+      through `ConfigModule.forRoot()` so `npm run dev` works on the host.
 - [x] Add the GitHub Actions CI foundation.
 - [x] Exercise the selected Argon2id package and parameters in the final API
       container.
