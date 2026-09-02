@@ -1,18 +1,15 @@
 import { Inject, Injectable } from "@nestjs/common";
-import {
-  type Pool,
-  type ResultSetHeader,
-  type RowDataPacket,
-} from "mysql2/promise";
+import { type Pool, type ResultSetHeader } from "mysql2/promise";
 
 import { uuidToBinary } from "#app/database/binary-uuid";
 import { DATABASE_POOL } from "#app/database/database.constants";
+import { type Habit } from "../habit.types";
 import {
   type CompletionDateRow,
   type CompletionRow,
-  type Habit,
+  type HabitRow,
   type LatestRelapseRow,
-} from "../habit.types";
+} from "./habits.repository.types";
 
 function toCalendarDate(date: Date): string {
   return date.toISOString().slice(0, 10);
@@ -23,7 +20,7 @@ export class HabitsRepository {
   public constructor(@Inject(DATABASE_POOL) private readonly pool: Pool) {}
 
   public async list(userId: string): Promise<Habit[]> {
-    const [rows] = await this.pool.execute<(RowDataPacket & Habit)[]>(
+    const [rows] = await this.pool.execute<HabitRow[]>(
       `SELECT LOWER(BIN_TO_UUID(id)) AS id,
               name,
               type,
@@ -92,7 +89,7 @@ export class HabitsRepository {
     userId: string,
     habitId: string,
   ): Promise<Habit | null> {
-    const [rows] = await this.pool.execute<(RowDataPacket & Habit)[]>(
+    const [rows] = await this.pool.execute<HabitRow[]>(
       `SELECT LOWER(BIN_TO_UUID(id)) AS id,
               name,
               type,
@@ -168,7 +165,7 @@ export class HabitsRepository {
       ],
     );
 
-    const [rows] = await this.pool.execute<(RowDataPacket & Habit)[]>(
+    const [rows] = await this.pool.execute<HabitRow[]>(
       `SELECT LOWER(BIN_TO_UUID(id)) AS id,
               name,
               type,

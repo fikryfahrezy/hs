@@ -7,6 +7,7 @@ import {
   recordRelapse,
   setCompletion,
 } from "../api/habits-api";
+import { goalQueryKeys } from "#app/features/goals/queries/goal-queries";
 
 export const habitQueryKeys = { all: ["habits"] as const };
 
@@ -26,7 +27,12 @@ export function useDeleteHabitMutation() {
   const client = useQueryClient();
   return useMutation({
     mutationFn: deleteHabit,
-    onSuccess: () => client.invalidateQueries({ queryKey: habitQueryKeys.all }),
+    onSuccess: async () => {
+      await Promise.all([
+        client.invalidateQueries({ queryKey: habitQueryKeys.all }),
+        client.invalidateQueries({ queryKey: goalQueryKeys.all }),
+      ]);
+    },
   });
 }
 

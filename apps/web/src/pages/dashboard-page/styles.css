@@ -18,14 +18,13 @@
   }
   .create-panel,
   .empty-state,
-  .goals-placeholder,
   .panel-state {
     border: 1px solid var(--color-border);
     padding: var(--space-5);
     background: var(--color-surface);
   }
   .create-panel h2,
-  .goals-placeholder h2 {
+  .empty-state h2 {
     margin: var(--space-2) 0;
   }
   .create-panel form {
@@ -45,10 +44,6 @@
     grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
     gap: var(--space-3);
   }
-  .goals-placeholder {
-    border-style: dashed;
-  }
-
   @media (min-width: 48rem) {
     .create-panel {
       display: grid;

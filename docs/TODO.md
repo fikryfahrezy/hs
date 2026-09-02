@@ -59,11 +59,11 @@ remain the detailed engineering reference.
 
 ## 6. Goal management
 
-- [ ] Add the goals migration and shared goal contracts.
-- [ ] Implement owned goal listing, creation, editing, and deletion.
-- [ ] Validate that every linked habit belongs to the authenticated user.
-- [ ] Add goal management interfaces and the Today goal summary.
-- [ ] Test CRUD, reassignment, ownership, and cascading deletion.
+- [x] Add the goals migration and shared goal contracts.
+- [x] Implement owned goal listing, creation, editing, and deletion.
+- [x] Validate that every linked habit belongs to the authenticated user.
+- [x] Add goal management interfaces and the Today goal summary.
+- [x] Test CRUD, reassignment, ownership, and cascading deletion.
 
 ## 7. Hardening and submission readiness
 

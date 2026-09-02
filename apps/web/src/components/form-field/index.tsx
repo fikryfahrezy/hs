@@ -1,4 +1,8 @@
-import { type InputHTMLAttributes, type SelectHTMLAttributes } from "react";
+import {
+  type InputHTMLAttributes,
+  type SelectHTMLAttributes,
+  type TextareaHTMLAttributes,
+} from "react";
 
 import "./styles.css";
 
@@ -51,6 +55,36 @@ export function SelectField({
       >
         {children}
       </select>
+      {error ? (
+        <span className="field-error" id={errorId} role="alert">
+          {error}
+        </span>
+      ) : null}
+    </label>
+  );
+}
+
+type TextareaFieldProps = TextareaHTMLAttributes<HTMLTextAreaElement> & {
+  error?: string;
+  label: string;
+};
+
+export function TextareaField({
+  error,
+  id,
+  label,
+  ...textarea
+}: TextareaFieldProps) {
+  const errorId = error && id ? `${id}-error` : undefined;
+  return (
+    <label className="form-field" htmlFor={id}>
+      <span>{label}</span>
+      <textarea
+        aria-describedby={errorId}
+        aria-invalid={Boolean(error)}
+        id={id}
+        {...textarea}
+      />
       {error ? (
         <span className="field-error" id={errorId} role="alert">
           {error}

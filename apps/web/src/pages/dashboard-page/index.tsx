@@ -10,6 +10,7 @@ import { AppShell } from "#app/components/app-shell";
 import { FormField, SelectField } from "#app/components/form-field";
 import { Button } from "#app/components/ui/button";
 import { useLogoutMutation } from "#app/features/auth/queries/auth-queries";
+import { GoalManager } from "#app/features/goals/components/goal-manager";
 import { HabitCard } from "#app/features/habits/components/habit-card";
 import {
   useCreateHabitMutation,
@@ -136,11 +137,7 @@ export function DashboardPage() {
             </section>
           </div>
         ) : null}
-        <section className="goals-placeholder">
-          <p className="eyebrow">Goals</p>
-          <h2>Connect habits to a bigger reason</h2>
-          <p>Goal management arrives in the next product slice.</p>
-        </section>
+        <GoalManager habits={habits.data ?? []} />
       </main>
     </AppShell>
   );

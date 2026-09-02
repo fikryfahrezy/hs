@@ -15,6 +15,20 @@ export {
 export { CalendarDateSchema } from "./common/calendar-date";
 export { IdentifierSchema } from "./common/identifiers";
 export {
+  CreateGoalRequestSchema,
+  GoalDescriptionSchema,
+  type CreateGoalRequest,
+} from "./goals/create-goal";
+export {
+  GoalListResponseSchema,
+  GoalResponseSchema,
+  type GoalResponse,
+} from "./goals/goal-response";
+export {
+  UpdateGoalRequestSchema,
+  type UpdateGoalRequest,
+} from "./goals/update-goal";
+export {
   CreateHabitRequestSchema,
   HABIT_TYPE,
   HabitTypeSchema,
