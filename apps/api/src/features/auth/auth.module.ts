@@ -19,6 +19,6 @@ import { AuthGuard } from "./transport/rest/auth.guard";
     TokenService,
     AuthGuard,
   ],
-  exports: [AuthRepository, AuthGuard],
+  exports: [AuthService, AuthGuard],
 })
 export class AuthModule {}

@@ -1,13 +1,62 @@
 @layer components {
   .dashboard-page {
+    display: grid;
+    gap: var(--space-6);
     width: min(100% - 2rem, var(--content-width));
     margin-inline: auto;
-    padding-block: var(--space-8);
+    padding-block: var(--space-6) var(--space-9);
   }
 
-  .dashboard-page h1 {
-    margin: var(--space-2) 0 var(--space-4);
+  .dashboard-hero h1 {
+    margin: var(--space-2) 0;
     font-size: clamp(2.25rem, 7vw, 4rem);
     letter-spacing: -0.055em;
+  }
+
+  .dashboard-hero > p:last-child {
+    color: var(--color-text-muted);
+  }
+  .create-panel,
+  .empty-state,
+  .goals-placeholder,
+  .panel-state {
+    border: 1px solid var(--color-border);
+    padding: var(--space-5);
+    background: var(--color-surface);
+  }
+  .create-panel h2,
+  .goals-placeholder h2 {
+    margin: var(--space-2) 0;
+  }
+  .create-panel form {
+    display: grid;
+    gap: var(--space-3);
+    margin-top: var(--space-4);
+  }
+  .habit-sections {
+    display: grid;
+    gap: var(--space-6);
+  }
+  .habit-sections h2 {
+    margin-top: 0;
+  }
+  .habit-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
+    gap: var(--space-3);
+  }
+  .goals-placeholder {
+    border-style: dashed;
+  }
+
+  @media (min-width: 48rem) {
+    .create-panel {
+      display: grid;
+      grid-template-columns: minmax(12rem, 0.7fr) minmax(20rem, 1.3fr);
+      gap: var(--space-6);
+    }
+    .create-panel form {
+      margin-top: 0;
+    }
   }
 }

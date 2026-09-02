@@ -63,6 +63,14 @@ export class AuthService {
   }
 
   public async getUser(userId: string): Promise<UserResponseDto> {
+    return this.toResponse(await this.requireUser(userId));
+  }
+
+  public async getTimezone(userId: string): Promise<string> {
+    return (await this.requireUser(userId)).timezone;
+  }
+
+  private async requireUser(userId: string): Promise<AuthUser> {
     const user = await this.repository.findById(userId);
     if (!user) {
       throw new AppError(
@@ -71,7 +79,7 @@ export class AuthService {
         "Sign in to continue.",
       );
     }
-    return this.toResponse(user);
+    return user;
   }
 
   private toResponse(user: AuthUser): UserResponseDto {

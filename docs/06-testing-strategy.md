@@ -129,7 +129,7 @@ can change without changing user behavior.
 ### Network-aware feature tests
 
 Use Mock Service Worker only when the network lifecycle matters, such as API
-response parsing, loading and error states, mutation behavior, optimistic
+API-to-model mapping, loading and error states, mutation behavior, optimistic
 updates, rollback, or query invalidation. Presentational components and pure
 logic do not need MSW.
 
@@ -284,9 +284,10 @@ execution later if suite duration demonstrates the need.
 
 ## Time and calendar control
 
-Time is a domain dependency in Habit Shaper. Backend application and domain code
-must receive an explicit clock or explicit calendar date rather than calling
-`new Date()` throughout business logic.
+Time is a domain dependency in Habit Shaper. Read `new Date()` at one localized
+application boundary, convert it to the user's calendar date, and pass that
+explicit date into pure calculations. Tests control the boundary with fake
+system time; do not scatter wall-clock reads through business logic.
 
 Before implementing tracking, decide and document:
 
@@ -401,7 +402,8 @@ would prevent real regressions.
 - Backend domain tests use explicit, behavior-named cases rather than tables.
 - Repository and API integration tests run against a freshly migrated MySQL
   database.
-- Time-dependent business rules use a controllable clock or explicit date.
+- Time-dependent business rules use a fake system time at the application
+  boundary or an explicit date in pure calculations.
 - Playwright covers the critical journeys through the complete Compose stack.
 - Tests are independently repeatable and do not rely on execution order.
 - No global coverage percentage causes low-value framework or declaration tests.

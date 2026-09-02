@@ -33,12 +33,12 @@ remain the detailed engineering reference.
 
 ## 3. Habit management and dashboard
 
-- [ ] Add the habits migration and shared habit contracts.
-- [ ] Implement owned build- and break-habit creation, listing, and deletion.
-- [ ] Add the responsive Today dashboard and empty, loading, error, and success
+- [x] Add the habits migration and shared habit contracts.
+- [x] Implement owned build- and break-habit creation, listing, and deletion.
+- [x] Add the responsive Today dashboard and empty, loading, error, and success
       states.
-- [ ] Add habit creation and confirmed deletion interfaces.
-- [ ] Verify user isolation in application and integration tests.
+- [x] Add habit creation and confirmed deletion interfaces.
+- [x] Verify user isolation in application and integration tests.
 
 ## 4. Build-habit tracking
 

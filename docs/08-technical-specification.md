@@ -98,8 +98,10 @@ used because application IDs are UUID version 4.
 - REST controllers parse requests and delegate to use cases. Application
   services construct response-ready class DTOs when serialization is required,
   and controllers return those DTOs without another mapper.
-- Frontend API adapters parse snake-case response contracts and map them to
-  camel-case feature values before returning data to hooks or components.
+- Frontend API adapters construct camel-case feature model objects from
+  snake-case responses before returning data to hooks or components. Model
+  constructors own field-level defaults, so an invalid field does not discard
+  compatible neighboring fields.
 - ISO calendar dates use `YYYY-MM-DD` strings.
 - Timestamps use UTC ISO 8601 strings with a `Z` suffix.
 - Optional stored values are returned as `null`, not omitted, when the response
@@ -177,15 +179,15 @@ differences.
 
 ### `habits`
 
-| Column       | MySQL definition                                                                   | Notes                                   |
-| ------------ | ---------------------------------------------------------------------------------- | --------------------------------------- |
-| `id`         | `BINARY(16) NOT NULL`                                                              | UUID v4 primary key stored as 128 bits. |
-| `user_id`    | `BINARY(16) NOT NULL`                                                              | Owning user UUID.                       |
-| `name`       | `VARCHAR(100) NOT NULL`                                                            | Trimmed, non-empty name.                |
-| `type`       | `ENUM('build', 'break') NOT NULL`                                                  | Immutable after creation.               |
-| `start_date` | `DATE NOT NULL`                                                                    | User-local date assigned by the server. |
-| `created_at` | `DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3)`                                | UTC.                                    |
-| `updated_at` | `DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3)` | UTC.                                    |
+| Column       | MySQL definition                                                                   | Notes                                            |
+| ------------ | ---------------------------------------------------------------------------------- | ------------------------------------------------ |
+| `id`         | `BINARY(16) NOT NULL`                                                              | UUID v4 primary key stored as 128 bits.          |
+| `user_id`    | `BINARY(16) NOT NULL`                                                              | Owning user UUID.                                |
+| `name`       | `VARCHAR(100) NOT NULL`                                                            | Trimmed, non-empty name.                         |
+| `type`       | `VARCHAR(16) NOT NULL`                                                             | Application-validated; immutable after creation. |
+| `start_date` | `DATE NOT NULL`                                                                    | User-local date assigned by the server.          |
+| `created_at` | `DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3)`                                | UTC.                                             |
+| `updated_at` | `DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3)` | UTC.                                             |
 
 Constraints and indexes:
 
@@ -289,9 +291,10 @@ seed data is required for normal startup.
 
 ### Resolving the user's date
 
-The authoritative current date is derived from the injected clock instant and
-the authenticated user's stored IANA timezone. The client never supplies
-"today" for a business decision.
+The authoritative current date is derived from one localized server-time read
+and the authenticated user's stored IANA timezone. The client never supplies
+"today" for a business decision. Unit tests control that read with fake system
+time.
 
 At registration:
 
@@ -1029,8 +1032,10 @@ packages/contracts/src/
 - Application services construct class response DTOs that implement shared
   contract types. Trusted backend output is compile-time checked and is not
   parsed again with Zod before returning it.
-- Frontend feature API adapters parse successful JSON with response schemas
-  and map it to camel-case feature values before returning data to query hooks.
+- Frontend feature API adapters construct camel-case model objects from
+  successful JSON before returning data to query hooks. Model constructors own
+  defaults for unexpected field values and do not reject an otherwise usable
+  response.
 - Error responses are normalized by the shared API client.
 - Do not add HTTP status codes, headers, React state, NestJS decorators, SQL row
   definitions, or domain services to the contracts package.
@@ -1104,7 +1109,7 @@ The implementation must prove these contracts at the lowest effective level:
 - timezone-dependent today resolution around UTC date boundaries;
 - date behavior at Monday/Sunday, month, year, and daylight-saving boundaries;
 - idempotent repeated completion and relapse requests;
-- response parsing through shared schemas in frontend adapter tests; and
+- API-to-model mapping and model-owned defaults in frontend tests;
 - response DTO serialization in application services and snake-case response
   mapping in frontend API adapters.
 

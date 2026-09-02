@@ -184,8 +184,9 @@ habits and offer one obvious action to create the first habit.
 ## Calendar and tracking rules summary
 
 Calendar decisions are product rules, not display-only formatting. Backend
-domain and application code must use an explicit clock and user calendar date
-rather than reading the machine timezone throughout the codebase.
+application code reads server time once, resolves the user calendar date, and
+passes that explicit date into domain calculations rather than reading the
+machine timezone throughout the codebase.
 
 ### User timezone
 
@@ -653,7 +654,8 @@ Acceptance criteria:
 - Use parameterized SQL for every dynamic value.
 - Calculate streaks and weekly results from source events; do not persist
   counters that can drift.
-- Pass an explicit clock or date into time-dependent use cases and calculations.
+- Localize the server-time read and pass an explicit calendar date into
+  time-dependent calculations.
 - Prefer query invalidation after mutations initially. Add optimistic behavior
   only when it materially improves the daily interaction and has rollback
   coverage.

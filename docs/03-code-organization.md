@@ -425,7 +425,9 @@ REST client now / GraphQL client later
 - `lib/api-client.ts` owns cross-feature REST mechanics such as the base URL,
   credentials, headers, JSON parsing, and normalized transport errors.
 - `features/<domain>/api/*-api.ts` owns domain endpoint paths and maps REST
-  request/response shapes to the stable values consumed by query hooks.
+  request/response shapes to camel-case model objects consumed by query hooks.
+- Feature model classes own tolerant field-level defaults for API responses;
+  the shared HTTP client remains concerned only with transport behavior.
 - TanStack Query keys describe domain data, not REST URLs or GraphQL operation
   names.
 - Components consume feature hooks and domain-facing values only.

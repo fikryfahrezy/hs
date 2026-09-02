@@ -1,24 +1,13 @@
 import {
-  UserResponseSchema,
   type LoginRequest,
   type RegisterRequest,
-  type UserResponse,
 } from "@habit-shaper/contracts";
 
 import { ApiError, requestJson } from "../../../lib/api-client";
-import { type SessionUser } from "../auth.types";
-
-function mapUser(user: UserResponse): SessionUser {
-  return {
-    id: user.id,
-    email: user.email,
-    timezone: user.timezone,
-    createdAt: user.created_at,
-  };
-}
+import { SessionUser } from "../auth.types";
 
 async function parseUser(request: Promise<unknown>): Promise<SessionUser> {
-  return mapUser(UserResponseSchema.parse(await request));
+  return SessionUser.fromApi(await request);
 }
 
 export function register(input: RegisterRequest): Promise<SessionUser> {

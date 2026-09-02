@@ -1,0 +1,33 @@
+@layer components {
+  .habit-card {
+    display: grid;
+    gap: var(--space-3);
+    border: 1px solid var(--color-border);
+    padding: var(--space-4);
+    background: var(--color-surface);
+  }
+  .habit-card h3 {
+    margin: var(--space-1) 0 0;
+    font-size: var(--font-size-lg);
+  }
+  .habit-type {
+    margin: 0;
+    color: var(--color-accent-strong);
+    font-size: var(--font-size-xs);
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .habit-card > button {
+    justify-self: start;
+  }
+  .confirm-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2);
+  }
+  .confirm-row span {
+    flex-basis: 100%;
+  }
+}
