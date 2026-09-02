@@ -1,0 +1,80 @@
+# Habit Shaper Implementation Todo
+
+This file is a working implementation checklist. The documents under `docs/`
+remain the detailed engineering reference.
+
+## 1. Scaffolding
+
+- [ ] Create the root npm workspaces and shared TypeScript configuration.
+- [ ] Scaffold the React web application and NestJS API.
+- [ ] Create the shared contracts and Playwright workspaces.
+- [ ] Pin exact Node.js, npm, dependency, MySQL, Nginx, and container versions.
+- [ ] Configure Oxfmt, Oxlint, strict TypeScript, Jest, and Lefthook.
+- [ ] Add the MySQL connection, Dbmate migration plumbing, and API health check.
+- [ ] Add multi-stage Dockerfiles, Nginx routing, health checks, and
+      `compose.yml`.
+- [ ] Ensure a fresh clone starts with `docker compose up` without requiring an
+      `.env` file.
+- [ ] Add `.env.example` for optional overrides and production configuration.
+- [ ] Add the GitHub Actions CI foundation.
+- [ ] Exercise the selected Argon2id package and parameters in the final API
+      container.
+- [ ] Update the planning documents to remove the `.env` startup ambiguity.
+- [ ] Change the implementation plan and technical specification from `Draft`
+      to `Ready` after their readiness checks pass.
+
+## 2. Authentication
+
+- [ ] Add the users migration and shared authentication contracts.
+- [ ] Implement registration, login, session restoration, and logout.
+- [ ] Implement Argon2id password hashing and signed HTTP-only cookie sessions.
+- [ ] Add authentication throttling and protected-route behavior.
+- [ ] Add unit, integration, component, and Playwright authentication tests.
+
+## 3. Habit management and dashboard
+
+- [ ] Add the habits migration and shared habit contracts.
+- [ ] Implement owned build- and break-habit creation, listing, and deletion.
+- [ ] Add the responsive Today dashboard and empty, loading, error, and success
+      states.
+- [ ] Add habit creation and confirmed deletion interfaces.
+- [ ] Verify user isolation in application and integration tests.
+
+## 4. Build-habit tracking
+
+- [ ] Add the habit-completions migration.
+- [ ] Implement current-week completion and correction operations.
+- [ ] Implement current streak and weekly progress calculations.
+- [ ] Add the seven-day progress interface and daily completion actions.
+- [ ] Test date eligibility, idempotency, ownership, boundaries, and UI states.
+
+## 5. Break-habit tracking
+
+- [ ] Add the habit-relapses migration.
+- [ ] Implement clean-streak calculation and today's relapse operation.
+- [ ] Add supportive relapse confirmation and mutation feedback.
+- [ ] Test reset behavior, idempotency, ownership, boundaries, and UI states.
+
+## 6. Goal management
+
+- [ ] Add the goals migration and shared goal contracts.
+- [ ] Implement owned goal listing, creation, editing, and deletion.
+- [ ] Validate that every linked habit belongs to the authenticated user.
+- [ ] Add goal management interfaces and the Today goal summary.
+- [ ] Test CRUD, reassignment, ownership, and cascading deletion.
+
+## 7. Hardening and submission readiness
+
+- [ ] Complete critical Playwright journeys through Compose and Nginx.
+- [ ] Review accessibility, keyboard behavior, focus management, responsive
+      layout, and reduced motion.
+- [ ] Review validation, security headers, cookies, throttling, ownership,
+      secret handling, and safe logging.
+- [ ] Verify migrations on a fresh database and persistence after restart.
+- [ ] Finish `README.md` setup, operation, testing, and troubleshooting steps.
+- [ ] Run formatting, linting, type-checking, unit, integration, build, and E2E
+      validation.
+- [ ] Inspect the final repository and containers for secrets, generated files,
+      development dependencies, and other unintended artifacts.
+- [ ] Change the implementation plan and technical specification to
+      `Implemented` only after the shipped behavior matches them.
