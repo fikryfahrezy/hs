@@ -12,10 +12,10 @@ export function GoalListItem({
 }: {
   goal: Goal;
   onEdit: (goal: Goal) => void;
-  onDeleted: () => void;
+  onDeleted: (goalId: string) => void;
 }) {
   const [confirming, setConfirming] = useState(false);
-  const deletion = useDeleteGoalMutation();
+  const deletion = useDeleteGoalMutation(onDeleted);
 
   return (
     <li>
@@ -39,17 +39,7 @@ export function GoalListItem({
             </Button>
             <Button
               disabled={deletion.isPending}
-              onClick={() =>
-                deletion.mutate(
-                  { id: goal.id },
-                  {
-                    onSuccess: () => {
-                      setConfirming(false);
-                      onDeleted();
-                    },
-                  },
-                )
-              }
+              onClick={() => deletion.mutate({ id: goal.id })}
             >
               Confirm delete
             </Button>

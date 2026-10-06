@@ -49,7 +49,7 @@ export function GoalManager({ habits }: { habits: Habit[] }) {
         isError={goals.isError}
         onRetry={() => void goals.refetch()}
         onEdit={form.edit}
-        onDeleted={() => form.setAnnouncement("Goal deleted.")}
+        onDeleted={form.deleted}
       />
     </section>
   );

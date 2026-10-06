@@ -103,6 +103,8 @@ describe("habit endpoints", () => {
       .expect(201);
     const endpoint = `/api/habits/${breaking.body.id}/relapses`;
 
+    expect(breaking.body.tracking.current_clean_streak).toBe(1);
+    expect(breaking.body.tracking.last_relapse_date).toBeNull();
     await stranger.post(endpoint).expect(404);
 
     const recorded = await owner.post(endpoint).expect(200);

@@ -49,10 +49,13 @@ type DeleteGoalMutationParams = {
   id: string;
 };
 
-export function useDeleteGoalMutation() {
+export function useDeleteGoalMutation(onDeleted: (goalId: string) => void) {
   const client = useQueryClient();
   return useMutation({
     mutationFn: (params: DeleteGoalMutationParams) => deleteGoal(params),
-    onSuccess: () => client.invalidateQueries({ queryKey: goalQueryKeys.all }),
+    onSuccess: (_data, params) => {
+      onDeleted(params.id);
+      return client.invalidateQueries({ queryKey: goalQueryKeys.all });
+    },
   });
 }

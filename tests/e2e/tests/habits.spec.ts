@@ -43,6 +43,7 @@ test("tracks a build completion and a break-habit relapse on a narrow screen", a
     .getByRole("heading", { name: "Late-night scrolling" })
     .locator("..")
     .locator("..");
+  await expect(breakCard.getByText("1 clean days")).toBeVisible();
   await breakCard.getByRole("button", { name: "Record relapse" }).click();
   await expect(
     breakCard.getByText("A setback is information, not failure."),

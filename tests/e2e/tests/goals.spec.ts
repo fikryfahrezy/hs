@@ -46,9 +46,15 @@ test("creates, edits, reassigns, and deletes a goal", async ({ page }) => {
   ).toBeVisible();
   await expect(goals.getByText("Doomscrolling · break")).toBeVisible();
 
+  await goals.getByRole("button", { name: "Edit" }).click();
+  await expect(page.getByLabel("Title")).toHaveValue("Stay present");
   await goals.getByRole("button", { name: "Delete" }).click();
   await goals.getByRole("button", { name: "Confirm delete" }).click();
   await expect(
     page.getByRole("heading", { name: "Stay present" }),
   ).not.toBeVisible();
+  await expect(page.getByLabel("Title")).toHaveValue("");
+  await expect(page.getByLabel("Description (optional)")).toHaveValue("");
+  await expect(goals.getByRole("button", { name: "Add goal" })).toBeVisible();
+  await expect(goals.getByRole("button", { name: "Save goal" })).toHaveCount(0);
 });

@@ -16,7 +16,7 @@ export function GoalList({
   isError: boolean;
   onRetry: () => void;
   onEdit: (goal: Goal) => void;
-  onDeleted: () => void;
+  onDeleted: (goalId: string) => void;
 }) {
   if (isPending) {
     return <p className="goals-state">Loading your goals…</p>;

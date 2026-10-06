@@ -39,6 +39,102 @@ function goal(title: string) {
 }
 
 describe("GoalManager", () => {
+  it.each(["editing", "other", "failed"])(
+    "handles deletion of an %s goal while the edit form is open",
+    async (scenario) => {
+      const otherGoalId = "65e77827-6cac-4304-a4d9-5b9a2eaeb0cd";
+      let storedGoals = [
+        goal("Read every day"),
+        { ...goal("Another goal"), id: otherGoalId },
+      ];
+      const fetchSpy = jest
+        .spyOn(globalThis, "fetch")
+        .mockImplementation(async (url, options) => {
+          const method = options?.method ?? "GET";
+          if (method === "GET") {
+            return response(storedGoals);
+          }
+          if (method === "DELETE") {
+            if (scenario === "failed") {
+              return response(undefined, 500);
+            }
+            const deletedId = String(url).split("/").at(-1);
+            storedGoals = storedGoals.filter((item) => item.id !== deletedId);
+            return response(undefined, 204);
+          }
+          if (method === "POST") {
+            return response(goal("A fresh goal"), 201);
+          }
+          throw new Error(`Unexpected request: ${method} ${String(url)}`);
+        });
+      const user = userEvent.setup();
+      render(<GoalManager habits={[habit]} />);
+
+      const heading = await screen.findByRole("heading", {
+        name: "Read every day",
+      });
+      await user.click(
+        within(heading.closest("article")!).getByRole("button", {
+          name: "Edit",
+        }),
+      );
+      expect(screen.getByLabelText("Title")).toHaveValue("Read every day");
+      expect(screen.getByLabelText("Description (optional)")).toHaveValue(
+        "Ten pages after breakfast.",
+      );
+      const deletingTitle =
+        scenario === "other" ? "Another goal" : "Read every day";
+      const card = screen
+        .getByRole("heading", { name: deletingTitle })
+        .closest("article")!;
+      await user.click(within(card).getByRole("button", { name: "Delete" }));
+      await user.click(
+        within(card).getByRole("button", { name: "Confirm delete" }),
+      );
+
+      if (scenario === "failed") {
+        expect(
+          await screen.findByText("Could not delete this goal. Try again."),
+        ).toBeVisible();
+      } else {
+        await waitFor(() =>
+          expect(
+            screen.queryByRole("heading", { name: deletingTitle }),
+          ).not.toBeInTheDocument(),
+        );
+        expect(screen.getByText("Goal deleted.")).toBeInTheDocument();
+      }
+
+      if (scenario === "editing") {
+        expect(screen.getByLabelText("Title")).toHaveValue("");
+        expect(screen.getByLabelText("Description (optional)")).toHaveValue("");
+        expect(screen.getByLabelText("Habit")).toHaveValue(habitId);
+        expect(screen.getByRole("button", { name: "Add goal" })).toBeVisible();
+        expect(
+          screen.queryByRole("button", { name: "Save goal" }),
+        ).not.toBeInTheDocument();
+        expect(
+          screen.queryByRole("button", { name: "Cancel editing" }),
+        ).not.toBeInTheDocument();
+
+        await user.type(screen.getByLabelText("Title"), "A fresh goal");
+        await user.click(screen.getByRole("button", { name: "Add goal" }));
+        await waitFor(() =>
+          expect(fetchSpy).toHaveBeenCalledWith(
+            expect.stringContaining("/goals"),
+            expect.objectContaining({ method: "POST" }),
+          ),
+        );
+      } else {
+        expect(screen.getByLabelText("Title")).toHaveValue("Read every day");
+        expect(screen.getByLabelText("Description (optional)")).toHaveValue(
+          "Ten pages after breakfast.",
+        );
+        expect(screen.getByRole("button", { name: "Save goal" })).toBeVisible();
+      }
+    },
+  );
+
   it("shows validation and does not submit an empty title", async () => {
     const fetchSpy = jest
       .spyOn(globalThis, "fetch")

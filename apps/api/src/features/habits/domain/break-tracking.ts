@@ -11,5 +11,5 @@ export function cleanStreak(
   if (relapse) {
     return toEpochDay(today) - toEpochDay(relapse);
   }
-  return toEpochDay(today) - toEpochDay(startDate);
+  return toEpochDay(today) - toEpochDay(startDate) + 1;
 }

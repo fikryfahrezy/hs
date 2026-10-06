@@ -61,6 +61,13 @@ export function useGoalForm(habits: Habit[]) {
     setTimeout(() => setFocus("title"), 0);
   };
 
+  const deleted = (goalId: string) => {
+    if (editingId === goalId) {
+      finishEditing();
+    }
+    setAnnouncement("Goal deleted.");
+  };
+
   const submit = handleSubmit(async (input) => {
     setAnnouncement("");
     try {
@@ -82,7 +89,7 @@ export function useGoalForm(habits: Habit[]) {
     errors,
     editingId,
     announcement,
-    setAnnouncement,
+    deleted,
     finishEditing,
     edit,
     submit,
